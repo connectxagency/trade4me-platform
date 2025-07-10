@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Force proper styling to prevent black screen */
+html, body {
+  margin: 0 !important;
+  padding: 0 !important;
+  min-height: 100vh !important;
+  background-color: #111827 !important; /* gray-900 */
+  color: white !important;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}
+
+#root {
+  min-height: 100vh !important;
+  background-color: #111827 !important; /* gray-900 */
+  color: white !important;
+}
+
+/* Ensure all components have proper background */
+.bg-gray-900 {
+  background-color: #111827 !important;
+}
+
+.text-white {
+  color: white !important;
+}
+
+/* Trade4me Blue 4 Styling */
+.trade4me-text {
+  position: relative;
+}
+
+.trade4me-text .blue-4 {
+  color: #3B82F6 !important; /* text-blue-500 */
+  font-weight: bold !important;
+}
+
+/* Global Trade4me styling - automatically makes all "4" in Trade4me blue */
+.trade4me-auto::before {
+  content: "Trade";
+}
+
+.trade4me-auto::after {
+  content: "me";
+}
+
+.trade4me-auto .four {
+  color: #3B82F6 !important;
+  font-weight: bold !important;
+}
+
+/* Override any potential conflicts */
+* {
+  box-sizing: border-box;
+}
+
+/* Ensure visibility */
+body *, #root * {
+  color: inherit;
+}
