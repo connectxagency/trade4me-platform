@@ -47,27 +47,36 @@ const Header: React.FC = () => {
           <nav className="hidden md:flex items-center space-x-8">
             <button 
               onClick={() => scrollToSection('services')}
-              className="text-gray-300 hover:text-white transition-colors"
+              className="relative text-gray-300 hover:text-white transition-all duration-300 ease-out hover:scale-105 hover:-translate-y-0.5 group"
             >
               Services
+              <span className="absolute inset-x-0 -bottom-2 h-0.5 bg-gradient-to-r from-purple-500 to-blue-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out"></span>
             </button>
             <button 
               onClick={() => scrollToSection('projects')}
-              className="text-gray-300 hover:text-white transition-colors"
+              className="relative text-gray-300 hover:text-white transition-all duration-300 ease-out hover:scale-105 hover:-translate-y-0.5 group"
             >
               Projects
+              <span className="absolute inset-x-0 -bottom-2 h-0.5 bg-gradient-to-r from-purple-500 to-blue-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out"></span>
             </button>
             <button 
               onClick={() => scrollToSection('partners')}
-              className="text-gray-300 hover:text-white transition-colors"
+              className="relative text-gray-300 hover:text-white transition-all duration-300 ease-out hover:scale-105 hover:-translate-y-0.5 group"
             >
               Partners
+              <span className="absolute inset-x-0 -bottom-2 h-0.5 bg-gradient-to-r from-purple-500 to-blue-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out"></span>
             </button>
-            <Link to="/explore-strategies" className="text-gray-300 hover:text-white transition-colors">Strategies</Link>
-            <Link to="/login" className="text-gray-300 hover:text-white transition-colors">Login</Link>
+            <Link to="/explore-strategies" className="relative text-gray-300 hover:text-white transition-all duration-300 ease-out hover:scale-105 hover:-translate-y-0.5 group">
+              Strategies
+              <span className="absolute inset-x-0 -bottom-2 h-0.5 bg-gradient-to-r from-purple-500 to-blue-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out"></span>
+            </Link>
+            <Link to="/login" className="relative text-gray-300 hover:text-white transition-all duration-300 ease-out hover:scale-105 hover:-translate-y-0.5 group">
+              Login
+              <span className="absolute inset-x-0 -bottom-2 h-0.5 bg-gradient-to-r from-purple-500 to-blue-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out"></span>
+            </Link>
             <Link 
               to="/register" 
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 hover:scale-105 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-blue-500/25 transition-all duration-300 ease-out"
             >
               Get Started
             </Link>

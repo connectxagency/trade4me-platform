@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import WebinarBookingModal from '../components/WebinarBookingModal';
+import { Squares } from '@/components/ui/squares-background';
 import { 
   TrendingUp, 
   Shield, 
@@ -149,9 +150,19 @@ const Trade4meLanding: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900">
+    <div className="relative min-h-screen bg-gray-900 overflow-hidden">
+      {/* Animated Background */}
+      <div className="absolute inset-0 opacity-10">
+        <Squares 
+          direction="right"
+          speed={0.4}
+          squareSize={45}
+          borderColor="#059669" 
+          hoverFillColor="#047857"
+        />
+      </div>
       {/* Header */}
-      <header className="bg-gray-800/50 border-b border-gray-700">
+      <header className="relative z-10 bg-gray-800/50 border-b border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
@@ -172,7 +183,7 @@ const Trade4meLanding: React.FC = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-900 via-blue-900/20 to-purple-900/20">
+      <section className="relative z-10 py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-900/80 via-blue-900/20 to-purple-900/20">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
@@ -181,7 +192,7 @@ const Trade4meLanding: React.FC = () => {
               <span className="text-3xl md:text-4xl text-gray-300">Professional BTC Strategy</span>
             </h1>
             
-            <p className="text-xl text-gray-300 mb-12 max-w-4xl mx-auto leading-relaxed">
+            <p className="lcp-text text-xl text-gray-300 mb-12 max-w-4xl mx-auto leading-relaxed">
               Access the same institutional-grade automated trading strategy that was previously 
               exclusive to professional investors. Now available starting from just <strong className="text-blue-400">500 USDC</strong> 
               on Phemex Exchange.

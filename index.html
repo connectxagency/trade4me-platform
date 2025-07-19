@@ -12,6 +12,12 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Trade4me - Professional Crypto Trading Strategies">
     <meta name="twitter:description" content="Access institutional-grade automated BTC trading strategies. Join 1,200+ followers.">
+    
+    <!-- Font preloading for LCP optimization -->
+    <link rel="preload" href="data:font/woff2;base64," as="font" type="font/woff2" crossorigin>
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    
+    <!-- Critical CSS for LCP text -->
     <style>
       /* Prevent black screen */
       html, body {
@@ -36,6 +42,24 @@
         background-color: #111827;
         color: white;
         font-size: 18px;
+      }
+      
+      /* Critical CSS for LCP elements */
+      .lcp-text {
+        font-size: 1.25rem;
+        line-height: 1.75;
+        color: #d1d5db;
+        margin-bottom: 3rem;
+        max-width: 56rem;
+        margin-left: auto;
+        margin-right: auto;
+        font-display: swap;
+        contain: layout;
+      }
+      
+      /* Optimize font rendering */
+      * {
+        font-display: swap;
       }
     </style>
   </head>

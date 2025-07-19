@@ -46,8 +46,24 @@ const WhyPhemex: React.FC = () => {
   ];
 
   return (
-    <section id="partners" className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-900" style={{ scrollMarginTop: '80px' }}>
-      <div className="max-w-7xl mx-auto">
+    <section id="partners" className="relative py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-bl from-gray-800 via-slate-900 to-gray-900 overflow-hidden" style={{ scrollMarginTop: '80px' }}>
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        {/* Large Gradient Orbs */}
+        <div className="absolute -top-48 -left-48 w-96 h-96 bg-blue-500/8 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1.5s' }}></div>
+        <div className="absolute -bottom-48 -right-48 w-96 h-96 bg-cyan-500/8 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '0.8s' }}></div>
+        
+        {/* Geometric Pattern */}
+        <div className="absolute inset-0 opacity-8">
+          <div className="absolute top-24 right-1/3 w-36 h-36 border border-blue-500/15 rotate-6 animate-spin" style={{ animationDuration: '30s' }}></div>
+          <div className="absolute bottom-24 left-1/4 w-16 h-16 border border-cyan-500/15 rotate-45 animate-spin" style={{ animationDuration: '12s', animationDirection: 'reverse' }}></div>
+        </div>
+        
+        {/* Hexagon Pattern */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.02)_1px,transparent_1px)] bg-[size:60px_60px]"></div>
+      </div>
+      
+      <div className="relative max-w-7xl mx-auto">
         <div className="text-center mb-16">
           {/* Phemex Logo */}
           <div className="flex justify-center mb-8">

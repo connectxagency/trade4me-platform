@@ -1,11 +1,23 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { TrendingUp, Users } from 'lucide-react';
+import { Squares } from '@/components/ui/squares-background';
 
 const Hero: React.FC = () => {
   return (
-    <section className="pt-24 pb-16 px-4 sm:px-6 lg:px-8 bg-gray-900 min-h-screen flex items-center">
-      <div className="max-w-7xl mx-auto w-full">
+    <section className="relative pt-24 pb-16 px-4 sm:px-6 lg:px-8 bg-gray-900 min-h-screen flex items-center overflow-hidden">
+      {/* Animated Squares Background */}
+      <div className="absolute inset-0 opacity-20">
+        <Squares 
+          direction="diagonal"
+          speed={0.3}
+          squareSize={50}
+          borderColor="#1e40af" 
+          hoverFillColor="#1e3a8a"
+        />
+      </div>
+      
+      <div className="max-w-7xl mx-auto w-full relative z-10">
         <div className="text-center">
           <div className="inline-flex items-center px-4 py-2 bg-blue-900/30 border border-blue-500/30 rounded-full text-blue-300 text-sm mb-8">
             Professional Crypto Trading Solutions
@@ -17,8 +29,8 @@ const Hero: React.FC = () => {
             <span className="text-blue-500">Automated Trading</span>
           </h1>
           
-          <p className="text-xl text-gray-300 mb-12 max-w-4xl mx-auto leading-relaxed">
-            Connect<span className="text-blue-500">X</span> delivers cutting-edge crypto trading strategies for affiliate partners, exchange KOLs, communities, and network partners. 
+          <p className="lcp-text text-xl text-gray-300 mb-12 max-w-4xl mx-auto leading-relaxed">
+            Trade4me delivers cutting-edge crypto trading strategies for affiliate partners, exchange KOLs, communities, and network partners. 
             Experience verified, automated trading solutions in both B2C retail and B2B institutional markets.
           </p>
           

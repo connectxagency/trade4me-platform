@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { Squares } from '@/components/ui/squares-background';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -51,8 +52,19 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="pt-24 pb-16 px-4 sm:px-6 lg:px-8 bg-gray-900 min-h-screen">
-      <div className="max-w-md mx-auto">
+    <div className="relative pt-24 pb-16 px-4 sm:px-6 lg:px-8 bg-gray-900 min-h-screen overflow-hidden">
+      {/* Subtle Animated Background */}
+      <div className="absolute inset-0 opacity-5">
+        <Squares 
+          direction="up"
+          speed={0.2}
+          squareSize={60}
+          borderColor="#374151" 
+          hoverFillColor="#1f2937"
+        />
+      </div>
+      
+      <div className="max-w-md mx-auto relative z-10">
         <Link 
           to="/" 
           className="inline-flex items-center gap-2 text-blue-500 hover:text-blue-400 transition-colors mb-8"

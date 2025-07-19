@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import Header from './components/Header';
@@ -9,18 +9,20 @@ import WhyPhemex from './components/WhyPhemex';
 import Features from './components/Features';
 import CTA from './components/CTA';
 import Footer from './components/Footer';
-import PrivacyPolicy from './pages/PrivacyPolicy';
-import TermsOfService from './pages/TermsOfService';
-import CookiePolicy from './pages/CookiePolicy';
-import Register from './pages/Register';
-import Login from './pages/Login';
-import AdminLogin from './pages/AdminLogin';
-import ForgotPassword from './pages/ForgotPassword';
-import Dashboard from './pages/Dashboard';
-import AdminDashboard from './pages/AdminDashboard';
-import ExploreStrategies from './pages/ExploreStrategies';
 import ProtectedRoute from './components/ProtectedRoute';
-import Trade4meLanding from './pages/Trade4meLanding';
+
+// Lazy load non-critical pages for better LCP
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
+const TermsOfService = lazy(() => import('./pages/TermsOfService'));
+const CookiePolicy = lazy(() => import('./pages/CookiePolicy'));
+const Register = lazy(() => import('./pages/Register'));
+const Login = lazy(() => import('./pages/Login'));
+const AdminLogin = lazy(() => import('./pages/AdminLogin'));
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
+const ExploreStrategies = lazy(() => import('./pages/ExploreStrategies'));
+const Trade4meLanding = lazy(() => import('./pages/Trade4meLanding'));
 
 function App() {
   console.log('🎯 ConnectX App rendering...');
@@ -42,43 +44,75 @@ function App() {
             </>
           } />
           <Route path="/privacy-policy" element={
-            <>
+            <Suspense fallback={<div className="min-h-screen bg-gray-900 flex items-center justify-center"><div className="text-white">Loading...</div></div>}>
               <Header />
               <PrivacyPolicy />
               <Footer />
-            </>
+            </Suspense>
           } />
           <Route path="/terms-of-service" element={
-            <>
+            <Suspense fallback={<div className="min-h-screen bg-gray-900 flex items-center justify-center"><div className="text-white">Loading...</div></div>}>
               <Header />
               <TermsOfService />
               <Footer />
-            </>
+            </Suspense>
           } />
           <Route path="/cookie-policy" element={
-            <>
+            <Suspense fallback={<div className="min-h-screen bg-gray-900 flex items-center justify-center"><div className="text-white">Loading...</div></div>}>
               <Header />
               <CookiePolicy />
               <Footer />
-            </>
+            </Suspense>
           } />
-          <Route path="/register" element={<Register />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/admin" element={<AdminLogin />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/explore-strategies" element={<ExploreStrategies />} />
+          <Route path="/register" element={
+            <Suspense fallback={<div className="min-h-screen bg-gray-900 flex items-center justify-center"><div className="text-white">Loading...</div></div>}>
+              <Register />
+            </Suspense>
+          } />
+          <Route path="/login" element={
+            <Suspense fallback={<div className="min-h-screen bg-gray-900 flex items-center justify-center"><div className="text-white">Loading...</div></div>}>
+              <Login />
+            </Suspense>
+          } />
+          <Route path="/admin" element={
+            <Suspense fallback={<div className="min-h-screen bg-gray-900 flex items-center justify-center"><div className="text-white">Loading...</div></div>}>
+              <AdminLogin />
+            </Suspense>
+          } />
+          <Route path="/forgot-password" element={
+            <Suspense fallback={<div className="min-h-screen bg-gray-900 flex items-center justify-center"><div className="text-white">Loading...</div></div>}>
+              <ForgotPassword />
+            </Suspense>
+          } />
+          <Route path="/explore-strategies" element={
+            <Suspense fallback={<div className="min-h-screen bg-gray-900 flex items-center justify-center"><div className="text-white">Loading...</div></div>}>
+              <ExploreStrategies />
+            </Suspense>
+          } />
           <Route path="/dashboard" element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
+            <Suspense fallback={<div className="min-h-screen bg-gray-900 flex items-center justify-center"><div className="text-white">Loading...</div></div>}>
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            </Suspense>
           } />
           <Route path="/admin-dashboard" element={
-            <ProtectedRoute>
-              <AdminDashboard />
-            </ProtectedRoute>
+            <Suspense fallback={<div className="min-h-screen bg-gray-900 flex items-center justify-center"><div className="text-white">Loading...</div></div>}>
+              <ProtectedRoute>
+                <AdminDashboard />
+              </ProtectedRoute>
+            </Suspense>
           } />
-          <Route path="/trade4me/:affiliateCode" element={<Trade4meLanding />} />
-          <Route path="/trade4me/*" element={<Trade4meLanding />} />
+          <Route path="/trade4me/:affiliateCode" element={
+            <Suspense fallback={<div className="min-h-screen bg-gray-900 flex items-center justify-center"><div className="text-white">Loading...</div></div>}>
+              <Trade4meLanding />
+            </Suspense>
+          } />
+          <Route path="/trade4me/*" element={
+            <Suspense fallback={<div className="min-h-screen bg-gray-900 flex items-center justify-center"><div className="text-white">Loading...</div></div>}>
+              <Trade4meLanding />
+            </Suspense>
+          } />
           {/* Catch-all route for any unmatched paths */}
           <Route path="*" element={
             <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">

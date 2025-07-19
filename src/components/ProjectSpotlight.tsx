@@ -3,8 +3,24 @@ import { TrendingUp } from 'lucide-react';
 
 const ProjectSpotlight: React.FC = () => {
   return (
-    <section id="projects" className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-900" style={{ scrollMarginTop: '80px' }}>
-      <div className="max-w-7xl mx-auto text-center">
+    <section id="projects" className="relative py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-tr from-slate-800 via-gray-900 to-slate-800 overflow-hidden" style={{ scrollMarginTop: '80px' }}>
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        {/* Large Gradient Orbs */}
+        <div className="absolute -top-32 -right-32 w-72 h-72 bg-green-500/8 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+        <div className="absolute -bottom-32 -left-32 w-72 h-72 bg-orange-500/8 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+        
+        {/* Geometric Pattern */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute top-32 right-1/4 w-28 h-28 border border-green-500/20 rotate-12 animate-spin" style={{ animationDuration: '25s' }}></div>
+          <div className="absolute bottom-32 left-1/3 w-20 h-20 border border-orange-500/20 rotate-45 animate-spin" style={{ animationDuration: '18s', animationDirection: 'reverse' }}></div>
+        </div>
+        
+        {/* Subtle Diamond Pattern */}
+        <div className="absolute inset-0 bg-[linear-gradient(45deg,rgba(34,197,94,0.02)_1px,transparent_1px),linear-gradient(-45deg,rgba(34,197,94,0.02)_1px,transparent_1px)] bg-[size:40px_40px]"></div>
+      </div>
+      
+      <div className="relative max-w-7xl mx-auto text-center">
         {/* Badge */}
         <div className="inline-flex items-center px-4 py-2 bg-purple-900/30 border border-purple-500/30 rounded-full text-purple-300 text-sm mb-8">
           Current Project Spotlight

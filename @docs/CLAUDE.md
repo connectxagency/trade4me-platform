@@ -69,6 +69,13 @@ Copy `.env.example` to `.env` and fill in values.
 
 All SQL migrations are in `supabase/migrations/` - run in chronological order to set up schema.
 
+### Documentation Structure
+
+All documentation is located in the `@docs/` directory:
+- `@docs/CLAUDE.md` - Development guidance for Claude Code
+- `@docs/SUPABASE.md` - Supabase configuration and setup
+- `@docs/API.md` - API documentation
+
 ### Deployment
 
 Configured for Vercel deployment with `vercel.json`. Set environment variables in Vercel dashboard.
