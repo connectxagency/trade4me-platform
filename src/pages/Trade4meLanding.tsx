@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import WebinarBookingModal from '../components/WebinarBookingModal';
+import Image from '../components/Image';
 import { Squares } from '@/components/ui/squares-background';
 import { 
   TrendingUp, 
@@ -328,10 +329,13 @@ const Trade4meLanding: React.FC = () => {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <div className="flex justify-center mb-8">
-              <img 
-                src="/phemex-logo copy.png" 
+              <Image 
+                src="/phemex-logo.png" 
                 alt="Phemex Exchange" 
                 className="h-16 md:h-20 object-contain"
+                loading="lazy"
+                width={200}
+                height={80}
               />
             </div>
             <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">

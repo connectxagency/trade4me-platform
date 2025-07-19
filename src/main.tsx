@@ -33,7 +33,7 @@ if (!rootElement) {
       <div style="color: white; padding: 20px; background: #111827; font-family: Arial; min-height: 100vh; display: flex; align-items: center; justify-content: center;">
         <div style="text-align: center;">
           <div style="margin-bottom: 16px;">
-            <img src="/ConnectX-logo-final copy.png" alt="ConnectX" style="height: 80px; width: auto;" />
+            <img src="/ConnectX-logo.png" alt="ConnectX" style="height: 80px; width: auto;" />
           </div>
           <p style="color: #9CA3AF; margin-bottom: 16px;">Loading application...</p>
           <button onclick="window.location.reload()" style="background: #3B82F6; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer;">

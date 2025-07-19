@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, TrendingUp, Users, DollarSign, BarChart3, ExternalLink, Shield, Clock, Target } from 'lucide-react';
+import Image from '../components/Image';
 
 const ExploreStrategies: React.FC = () => {
   const strategyData = {
@@ -43,10 +44,13 @@ const ExploreStrategies: React.FC = () => {
             
             <div className="flex items-center gap-4">
               <div className="flex items-center">
-                <img 
-                  src="/ConnectX-logo-final copy.png" 
+                <Image 
+                  src="/ConnectX-logo.png" 
                   alt="ConnectX" 
                   className="h-8 w-auto object-contain"
+                  loading="eager"
+                  width={120}
+                  height={32}
                 />
               </div>
               <span className="text-gray-400">Trading Strategies</span>
@@ -72,10 +76,13 @@ const ExploreStrategies: React.FC = () => {
             <div className="flex items-center gap-6">
               {/* Phemex Logo */}
               <div className="flex-shrink-0">
-                <img 
-                  src="/phemex-logo copy.png" 
+                <Image 
+                  src="/phemex-logo.png" 
                   alt="Phemex Exchange" 
                   className="h-16 md:h-20 w-auto object-contain"
+                  loading="lazy"
+                  width={200}
+                  height={80}
                 />
               </div>
               <div>

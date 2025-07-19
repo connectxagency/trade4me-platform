@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import Image from './Image';
 
 const Footer: React.FC = () => {
   return (
@@ -10,10 +11,13 @@ const Footer: React.FC = () => {
           <div className="md:col-span-1">
             <div className="mb-6">
               <div className="flex items-center">
-                <img 
-                  src="/ConnectX-logo-final copy.png" 
+                <Image 
+                  src="/ConnectX-logo.png" 
                   alt="ConnectX" 
                   className="h-12 w-auto object-contain"
+                  loading="lazy"
+                  width={150}
+                  height={48}
                 />
               </div>
             </div>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
+import Image from './Image';
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
@@ -37,10 +38,13 @@ const Header: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
-            <img 
-              src="/ConnectX-logo-final copy copy copy.png" 
+            <Image 
+              src="/ConnectX-logo.png" 
               alt="ConnectX" 
-              className="h-20 w-auto object-contain"
+              className="h-16 w-auto object-contain"
+              priority={true}
+              width={200}
+              height={64}
             />
           </div>
           

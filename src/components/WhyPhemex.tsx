@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { DollarSign, BarChart3, Shield, TrendingUp, Globe, Clock } from 'lucide-react';
 import ConsultationModal from './ConsultationModal';
+import Image from './Image';
 
 const WhyPhemex: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
@@ -67,10 +68,13 @@ const WhyPhemex: React.FC = () => {
         <div className="text-center mb-16">
           {/* Phemex Logo */}
           <div className="flex justify-center mb-8">
-            <img 
-              src="/phemex-logo copy.png" 
+            <Image 
+              src="/phemex-logo.png" 
               alt="Phemex Exchange" 
-              className="h-16 md:h-20 object-contain"
+              className="h-12 md:h-16 object-contain"
+              loading="lazy"
+              width={200}
+              height={64}
             />
           </div>
           
