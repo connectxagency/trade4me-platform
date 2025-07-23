@@ -51,7 +51,7 @@ const Features: React.FC = () => {
       <div className="relative max-w-7xl mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-            Why Choose Connect<span className="text-blue-500">X</span>?
+            Why Choose Trade4<span className="text-blue-500">Me</span>?
           </h2>
           <p className="text-xl text-gray-400 max-w-4xl mx-auto leading-relaxed">
             Join the growing network of successful partners leveraging our proven trading strategies

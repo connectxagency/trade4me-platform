@@ -12,8 +12,8 @@ const Footer: React.FC = () => {
             <div className="mb-6">
               <div className="flex items-center">
                 <Image 
-                  src="/ConnectX-logo.png" 
-                  alt="ConnectX" 
+                  src="/trade4me-logo-final.png" 
+                  alt="Trade4me" 
                   className="h-12 w-auto object-contain"
                   loading="lazy"
                   width={150}
@@ -22,7 +22,7 @@ const Footer: React.FC = () => {
               </div>
             </div>
             <p className="text-gray-400 leading-relaxed max-w-md">
-              Connect<span className="text-blue-500">X</span> delivers cutting-edge crypto trading strategies for partners worldwide. 
+              Trade4<span className="text-blue-500">Me</span> delivers cutting-edge crypto trading strategies for partners worldwide. 
               Experience verified, automated trading solutions in both retail and institutional markets.
             </p>
           </div>
@@ -60,7 +60,7 @@ const Footer: React.FC = () => {
         
         {/* Bottom Section - Copyright and Legal Links */}
         <div className="border-t border-gray-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-gray-400 mb-4 md:mb-0">© 2025 Connect<span className="text-blue-500">X</span>. All rights reserved.</p>
+          <p className="text-gray-400 mb-4 md:mb-0">© 2025 Trade4<span className="text-blue-500">Me</span>. All rights reserved.</p>
           <div className="flex space-x-6 text-gray-400">
             <Link to="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</Link>
             <Link to="/terms-of-service" className="hover:text-white transition-colors">Terms of Service</Link>

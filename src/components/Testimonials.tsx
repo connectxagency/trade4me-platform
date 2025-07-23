@@ -7,14 +7,14 @@ const Testimonials: React.FC = () => {
       name: 'Sarah Johnson',
       role: 'Product Manager at TechCorp',
       image: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=400',
-      content: 'ConnectX has completely transformed how I network. The AI matching is incredibly accurate, and I\'ve made connections that have directly led to career opportunities.',
+      content: 'Trade4Me has completely transformed how I network. The AI matching is incredibly accurate, and I\'ve made connections that have directly led to career opportunities.',
       rating: 5
     },
     {
       name: 'Michael Chen',
       role: 'Startup Founder',
       image: 'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=400',
-      content: 'As a founder, finding the right mentors and advisors is crucial. ConnectX helped me connect with industry veterans who have been invaluable to my startup journey.',
+      content: 'As a founder, finding the right mentors and advisors is crucial. Trade4Me helped me connect with industry veterans who have been invaluable to my startup journey.',
       rating: 5
     },
     {
@@ -34,7 +34,7 @@ const Testimonials: React.FC = () => {
             What Our Users Say
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Join thousands of professionals who have transformed their networking with ConnectX.
+            Join thousands of professionals who have transformed their networking with Trade4Me.
           </p>
         </div>
         

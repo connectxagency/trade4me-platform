@@ -74,7 +74,7 @@ const TermsOfService: React.FC = () => {
             <section className="mb-8">
               <h2 className="text-2xl font-bold text-white mb-4">5. Limitation of Liability</h2>
               <p className="text-gray-300 mb-4">
-                ConnectX shall not be liable for any direct, indirect, incidental, special, or 
+                Trade4Me shall not be liable for any direct, indirect, incidental, special, or 
                 consequential damages resulting from the use or inability to use our services, 
                 including but not limited to trading losses.
               </p>

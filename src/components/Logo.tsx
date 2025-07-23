@@ -9,7 +9,7 @@ const Logo: React.FC = () => {
           <Network className="w-12 h-12 text-white" />
         </div>
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900">ConnectX</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Trade4Me</h1>
           <p className="text-gray-600 text-sm mt-1">Professional Network</p>
         </div>
       </div>

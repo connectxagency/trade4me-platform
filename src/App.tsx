@@ -25,7 +25,7 @@ const ExploreStrategies = lazy(() => import('./pages/ExploreStrategies'));
 const Trade4meLanding = lazy(() => import('./pages/Trade4meLanding'));
 
 function App() {
-  console.log('🎯 ConnectX App rendering...');
+  console.log('🎯 Trade4Me App rendering...');
   
   return (
     <AuthProvider>

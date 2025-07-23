@@ -39,8 +39,8 @@ const Header: React.FC = () => {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             <Image 
-              src="/ConnectX-logo.png" 
-              alt="ConnectX" 
+              src="/trade4me-logo-final.png" 
+              alt="Trade4me" 
               className="h-16 w-auto object-contain"
               priority={true}
               width={200}

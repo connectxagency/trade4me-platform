@@ -45,8 +45,8 @@ const ExploreStrategies: React.FC = () => {
             <div className="flex items-center gap-4">
               <div className="flex items-center">
                 <Image 
-                  src="/ConnectX-logo.png" 
-                  alt="ConnectX" 
+                  src="/trade4me-logo-final.png" 
+                  alt="Trade4me" 
                   className="h-8 w-auto object-contain"
                   loading="eager"
                   width={120}

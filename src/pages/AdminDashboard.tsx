@@ -266,7 +266,7 @@ const AdminDashboard: React.FC = () => {
                     </div>
                     <div>
                       <div className="text-white font-medium">New partner approved</div>
-                      <div className="text-sm text-gray-400">ConnectX Agency - Affiliate Partner</div>
+                      <div className="text-sm text-gray-400">Trade4Me Agency - Affiliate Partner</div>
                     </div>
                   </div>
                   <div className="text-sm text-gray-500">2 hours ago</div>
