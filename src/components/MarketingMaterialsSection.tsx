@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { 
   Download, 
   Image, 
@@ -9,6 +9,7 @@ import {
   ExternalLink,
   Copy,
   Eye,
+  X,
   Calendar,
   Tag,
   Palette
@@ -30,121 +31,241 @@ interface MarketingMaterial {
   created_at: string;
 }
 
-const MarketingMaterialsSection: React.FC = () => {
+interface PreviewModalProps {
+  material: MarketingMaterial | null;
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+const PreviewModal: React.FC<PreviewModalProps> = ({ material, isOpen, onClose }) => {
+  if (!isOpen || !material) return null;
+
+  const isImage = material.type === 'image' || material.type === 'banner' || material.type === 'social';
+  const isVideo = material.type === 'video';
+  const isDocument = material.type === 'document';
+
+  return (
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+      <div className="bg-gray-800 rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b border-gray-700">
+          <div>
+            <h3 className="text-lg font-bold text-white">{material.title}</h3>
+            <p className="text-sm text-gray-400">{material.description}</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 text-gray-400 hover:text-white transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Preview Content */}
+        <div className="p-6">
+          {isImage && (
+            <div className="flex justify-center">
+              <img 
+                src={material.file_url} 
+                alt={material.title}
+                className="max-w-full max-h-[60vh] object-contain rounded-lg"
+              />
+            </div>
+          )}
+
+          {isVideo && (
+            <div className="flex justify-center">
+              <video 
+                controls 
+                className="max-w-full max-h-[60vh] rounded-lg"
+                poster={material.file_url}
+              >
+                <source src={material.file_url} type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+            </div>
+          )}
+
+          {isDocument && (
+            <div className="text-center py-12">
+              <FileText className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+              <h4 className="text-lg font-semibold text-white mb-2">Document Preview</h4>
+              <p className="text-gray-400 mb-6">
+                {material.file_name} ({material.format})
+              </p>
+              <button
+                onClick={() => window.open(material.file_url, '_blank')}
+                className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2 mx-auto"
+              >
+                <ExternalLink className="w-4 h-4" />
+                Open Document
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Footer with Details */}
+        <div className="border-t border-gray-700 p-4 bg-gray-700/30">
+          <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center gap-4 text-gray-400">
+              <span>Category: {getCategoryLabel(material.category)}</span>
+              {material.dimensions && <span>Size: {material.dimensions}</span>}
+              <span>Format: {material.format}</span>
+              {material.file_size && (
+                <span>File Size: {formatFileSize(material.file_size)}</span>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  const link = document.createElement('a');
+                  link.href = material.file_url;
+                  link.download = material.file_name;
+                  link.target = '_blank';
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                }}
+                className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2"
+              >
+                <Download className="w-4 h-4" />
+                Download
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  function getCategoryLabel(category: string): string {
+    const labels: Record<string, string> = {
+      web: 'Web Banners',
+      social: 'Social Media',
+      marketing: 'Marketing',
+      presentations: 'Presentations',
+      email: 'Email Templates',
+      print: 'Print Materials'
+    };
+    return labels[category] || category.charAt(0).toUpperCase() + category.slice(1);
+  }
+
+  function formatFileSize(bytes: number): string {
+    const mb = bytes / (1024 * 1024);
+    if (mb < 1) {
+      const kb = bytes / 1024;
+      return `${kb.toFixed(0)} KB`;
+    }
+    return `${mb.toFixed(1)} MB`;
+  }
+};
+
+interface MarketingMaterialsSectionProps {
+  cachedData?: MarketingMaterial[];
+}
+
+const MarketingMaterialsSection: React.FC<MarketingMaterialsSectionProps> = ({ cachedData = [] }) => {
   const [materials, setMaterials] = useState<MarketingMaterial[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedType, setSelectedType] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [copied, setCopied] = useState<string | null>(null);
+  const [previewMaterial, setPreviewMaterial] = useState<MarketingMaterial | null>(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [hasLoaded, setHasLoaded] = useState(false);
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const ITEMS_PER_PAGE = 6; // Load 6 items at a time
 
+  // Initialize with cached data if available
   useEffect(() => {
-    fetchMarketingMaterials();
-  }, []);
+    if (cachedData && cachedData.length >= 0) {
+      setMaterials(cachedData);
+      setHasLoaded(true);
+      setLoading(false);
+      setHasMore(cachedData.length > ITEMS_PER_PAGE);
+    } else if (cachedData === undefined) {
+      // Only fetch if no cached data is provided
+      fetchMarketingMaterials(1, false);
+    }
+  }, [cachedData]);
 
-  const fetchMarketingMaterials = async () => {
+  // Memoize the fetch function to prevent unnecessary re-renders
+  const fetchMarketingMaterials = useCallback(async (page = 1, append = false) => {
+    if (hasLoaded && page === 1) return; // Prevent multiple fetches for first page
+    
     try {
+      if (page === 1) {
+        setLoading(true);
+      } else {
+        setLoadingMore(true);
+      }
+
+      // Calculate offset for pagination
+      const offset = (page - 1) * ITEMS_PER_PAGE;
+      
       const { data, error } = await supabase
         .from('marketing_materials')
         .select('*')
         .eq('is_active', true)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .range(offset, offset + ITEMS_PER_PAGE - 1);
 
       if (error) throw error;
-      setMaterials(data || []);
+      
+      if (append) {
+        setMaterials(prev => [...prev, ...(data || [])]);
+      } else {
+        setMaterials(data || []);
+      }
+      
+      // Check if there are more items
+      setHasMore((data || []).length === ITEMS_PER_PAGE);
+      
+      if (page === 1) {
+        setHasLoaded(true);
+      }
     } catch (error) {
       console.error('Error fetching marketing materials:', error);
-      // Set demo data if database fails
-      setMaterials([
-        {
-          id: '1',
-          title: 'Trade4me Strategy Banner',
-          description: 'High-quality banner for website headers and social media',
-          type: 'banner',
-          file_url: 'https://images.pexels.com/photos/6801648/pexels-photo-6801648.jpeg?auto=compress&cs=tinysrgb&w=1200',
-          file_name: 'trade4me-banner-1200x400.jpg',
-          file_size: 245000,
-          category: 'web',
-          dimensions: '1200x400',
-          format: 'JPG',
-          is_active: true,
-          created_at: new Date().toISOString()
-        },
-        {
-          id: '2',
-          title: 'Instagram Story Template',
-          description: 'Ready-to-use Instagram story template with Trade4me branding',
-          type: 'social',
-          file_url: 'https://images.pexels.com/photos/6801874/pexels-photo-6801874.jpeg?auto=compress&cs=tinysrgb&w=600',
-          file_name: 'instagram-story-template.png',
-          file_size: 180000,
-          category: 'social',
-          dimensions: '1080x1920',
-          format: 'PNG',
-          is_active: true,
-          created_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
-        },
-        {
-          id: '3',
-          title: 'Performance Infographic',
-          description: 'Visual representation of Trade4me strategy performance',
-          type: 'image',
-          file_url: 'https://images.pexels.com/photos/6801642/pexels-photo-6801642.jpeg?auto=compress&cs=tinysrgb&w=800',
-          file_name: 'performance-infographic.png',
-          file_size: 320000,
-          category: 'marketing',
-          dimensions: '800x1200',
-          format: 'PNG',
-          is_active: true,
-          created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
-        },
-        {
-          id: '4',
-          title: 'Partner Presentation Deck',
-          description: 'Complete presentation for partner meetings and proposals',
-          type: 'document',
-          file_url: '/marketing/partner-presentation.pdf',
-          file_name: 'partner-presentation-deck.pdf',
-          file_size: 2500000,
-          category: 'presentations',
-          format: 'PDF',
-          is_active: true,
-          created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
-        },
-        {
-          id: '5',
-          title: 'YouTube Thumbnail Template',
-          description: 'Eye-catching thumbnail template for YouTube videos',
-          type: 'image',
-          file_url: 'https://images.pexels.com/photos/6801647/pexels-photo-6801647.jpeg?auto=compress&cs=tinysrgb&w=800',
-          file_name: 'youtube-thumbnail-template.png',
-          file_size: 150000,
-          category: 'social',
-          dimensions: '1280x720',
-          format: 'PNG',
-          is_active: true,
-          created_at: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString()
-        },
-        {
-          id: '6',
-          title: 'Email Newsletter Template',
-          description: 'Professional email template for partner communications',
-          type: 'document',
-          file_url: '/marketing/email-template.html',
-          file_name: 'email-newsletter-template.html',
-          file_size: 45000,
-          category: 'email',
-          format: 'HTML',
-          is_active: true,
-          created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()
-        }
-      ]);
+      // No fallback data - just set empty array
+      if (page === 1) {
+        setMaterials([]);
+        setHasMore(false);
+        setHasLoaded(true);
+      }
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
-  };
+  }, [hasLoaded]);
 
-  const formatFileSize = (bytes: number | null) => {
+  // Load more function
+  const loadMore = useCallback(() => {
+    if (!loadingMore && hasMore) {
+      const nextPage = currentPage + 1;
+      setCurrentPage(nextPage);
+      fetchMarketingMaterials(nextPage, true);
+    }
+  }, [loadingMore, hasMore, currentPage, fetchMarketingMaterials]);
+
+  // Reset pagination when filters change
+  useEffect(() => {
+    // Only reset if we don't have cached data
+    if (!cachedData || cachedData.length === 0) {
+      setCurrentPage(1);
+      setHasMore(true);
+      setMaterials([]);
+      setHasLoaded(false);
+      fetchMarketingMaterials(1, false);
+    }
+  }, [selectedCategory, selectedType, searchTerm]); // Removed cachedData dependency
+
+  // Memoize utility functions
+  const formatFileSize = useCallback((bytes: number | null) => {
     if (!bytes) return 'Unknown size';
     const mb = bytes / (1024 * 1024);
     if (mb < 1) {
@@ -152,9 +273,9 @@ const MarketingMaterialsSection: React.FC = () => {
       return `${kb.toFixed(0)} KB`;
     }
     return `${mb.toFixed(1)} MB`;
-  };
+  }, []);
 
-  const getTypeIcon = (type: string) => {
+  const getTypeIcon = useCallback((type: string) => {
     switch (type) {
       case 'image':
       case 'banner':
@@ -168,9 +289,9 @@ const MarketingMaterialsSection: React.FC = () => {
       default:
         return FileText;
     }
-  };
+  }, []);
 
-  const getTypeColor = (type: string) => {
+  const getTypeColor = useCallback((type: string) => {
     switch (type) {
       case 'image':
       case 'banner':
@@ -184,14 +305,14 @@ const MarketingMaterialsSection: React.FC = () => {
       default:
         return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
     }
-  };
+  }, []);
 
-  const getCategories = () => {
+  const getCategories = useMemo(() => {
     const categories = [...new Set(materials.map(m => m.category))];
     return categories.sort();
-  };
+  }, [materials]);
 
-  const getCategoryLabel = (category: string) => {
+  const getCategoryLabel = useCallback((category: string) => {
     const labels: Record<string, string> = {
       web: 'Web Banners',
       social: 'Social Media',
@@ -201,24 +322,77 @@ const MarketingMaterialsSection: React.FC = () => {
       print: 'Print Materials'
     };
     return labels[category] || category.charAt(0).toUpperCase() + category.slice(1);
-  };
+  }, []);
 
-  const filteredMaterials = materials.filter(material => {
-    const matchesCategory = selectedCategory === 'all' || material.category === selectedCategory;
-    const matchesType = selectedType === 'all' || material.type === selectedType;
-    const matchesSearch = material.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         material.description?.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    return matchesCategory && matchesType && matchesSearch;
-  });
+  // Memoize filtered materials to prevent unnecessary re-computations
+  const filteredMaterials = useMemo(() => {
+    return materials.filter(material => {
+      const matchesCategory = selectedCategory === 'all' || material.category === selectedCategory;
+      const matchesType = selectedType === 'all' || material.type === selectedType;
+      const matchesSearch = material.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           material.description?.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      return matchesCategory && matchesType && matchesSearch;
+    });
+  }, [materials, selectedCategory, selectedType, searchTerm]);
 
-  const copyLink = (url: string, id: string) => {
-    navigator.clipboard.writeText(url);
-    setCopied(id);
-    setTimeout(() => setCopied(null), 2000);
-  };
+  const copyLink = useCallback((url: string, id: string) => {
+    copyImageToClipboard(url, id);
+  }, []);
 
-  const downloadMaterial = (material: MarketingMaterial) => {
+  const copyImageToClipboard = useCallback(async (imageUrl: string, materialId: string) => {
+    try {
+      // For images, copy the actual image data
+      if (imageUrl.startsWith('data:image/') || imageUrl.startsWith('http')) {
+        const response = await fetch(imageUrl);
+        const blob = await response.blob();
+        
+        // Check if it's an image
+        if (blob.type.startsWith('image/')) {
+          await navigator.clipboard.write([
+            new ClipboardItem({
+              [blob.type]: blob
+            })
+          ]);
+          setCopied(materialId);
+          setTimeout(() => setCopied(null), 2000);
+        } else {
+          // Fallback to copying URL for non-images
+          await navigator.clipboard.writeText(imageUrl);
+          setCopied(materialId);
+          setTimeout(() => setCopied(null), 2000);
+        }
+      } else {
+        // Fallback to copying URL
+        await navigator.clipboard.writeText(imageUrl);
+        setCopied(materialId);
+        setTimeout(() => setCopied(null), 2000);
+      }
+    } catch (error) {
+      console.error('Failed to copy image:', error);
+      // Fallback to copying URL if image copy fails
+      try {
+        await navigator.clipboard.writeText(imageUrl);
+        setCopied(materialId);
+        setTimeout(() => setCopied(null), 2000);
+      } catch (urlError) {
+        console.error('Failed to copy URL as fallback:', urlError);
+        alert('Copy failed. Please try downloading the image instead.');
+      }
+    }
+  }, []);
+
+  const openPreview = useCallback((material: MarketingMaterial) => {
+    setPreviewMaterial(material);
+    setIsPreviewOpen(true);
+  }, []);
+
+  const closePreview = useCallback(() => {
+    setIsPreviewOpen(false);
+    setPreviewMaterial(null);
+  }, []);
+
+  const downloadMaterial = useCallback((material: MarketingMaterial) => {
     // Create download link
     const link = document.createElement('a');
     link.href = material.file_url;
@@ -227,9 +401,9 @@ const MarketingMaterialsSection: React.FC = () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-  };
+  }, []);
 
-  if (loading) {
+  if (loading && materials.length === 0 && !hasLoaded) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
@@ -273,7 +447,7 @@ const MarketingMaterialsSection: React.FC = () => {
               className="px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             >
               <option value="all">All Categories</option>
-              {getCategories().map(category => (
+              {getCategories.map(category => (
                 <option key={category} value={category}>
                   {getCategoryLabel(category)}
                 </option>
@@ -310,6 +484,7 @@ const MarketingMaterialsSection: React.FC = () => {
                     src={material.file_url} 
                     alt={material.title}
                     className="w-full h-full object-contain bg-gray-900"
+                    loading="lazy"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
@@ -327,7 +502,7 @@ const MarketingMaterialsSection: React.FC = () => {
                 {/* Quick Actions */}
                 <div className="absolute top-3 right-3 flex gap-2">
                   <button
-                    onClick={() => window.open(material.file_url, '_blank')}
+                    onClick={() => openPreview(material)}
                     className="p-2 bg-black/50 rounded-full text-white hover:bg-black/70 transition-colors"
                     title="Preview"
                   >
@@ -373,10 +548,10 @@ const MarketingMaterialsSection: React.FC = () => {
                   <button
                     onClick={() => copyLink(material.file_url, material.id)}
                     className="px-4 py-3 bg-gray-600 text-white rounded-lg font-medium hover:bg-gray-700 transition-colors flex items-center gap-2"
-                    title="Copy Link"
+                    title="Copy Image"
                   >
                     <Copy className="w-4 h-4" />
-                    {copied === material.id ? 'Copied!' : ''}
+                    {copied === material.id ? 'Copied!' : 'Copy'}
                   </button>
                 </div>
               </div>
@@ -385,7 +560,27 @@ const MarketingMaterialsSection: React.FC = () => {
         })}
       </div>
 
-      {filteredMaterials.length === 0 && (
+      {/* Load More Button */}
+      {hasMore && (
+        <div className="flex justify-center pt-6">
+          <button
+            onClick={loadMore}
+            disabled={loadingMore}
+            className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 flex items-center gap-2"
+          >
+            {loadingMore ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                Loading...
+              </>
+            ) : (
+              'Load More Materials'
+            )}
+          </button>
+        </div>
+      )}
+
+      {filteredMaterials.length === 0 && !loading && (
         <div className="text-center py-12">
           <Palette className="w-16 h-16 text-gray-600 mx-auto mb-4" />
           <h4 className="text-lg font-semibold text-gray-400 mb-2">No Marketing Materials Found</h4>
@@ -397,6 +592,13 @@ const MarketingMaterialsSection: React.FC = () => {
           </p>
         </div>
       )}
+
+      {/* Preview Modal */}
+      <PreviewModal
+        material={previewMaterial}
+        isOpen={isPreviewOpen}
+        onClose={closePreview}
+      />
 
       {/* Usage Guidelines */}
       <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-6">

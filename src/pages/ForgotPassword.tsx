@@ -73,52 +73,52 @@ const ForgotPassword: React.FC = () => {
   }
 
   return (
-    <div className="pt-24 pb-16 px-4 sm:px-6 lg:px-8 bg-gray-900 min-h-screen">
-      <div className="max-w-md mx-auto">
+    <div className="pt-20 sm:pt-24 pb-12 sm:pb-16 px-4 sm:px-6 lg:px-8 bg-gray-900 min-h-screen">
+      <div className="max-w-md mx-auto px-2 sm:px-0">
         <Link 
           to="/login" 
-          className="inline-flex items-center gap-2 text-blue-500 hover:text-blue-400 transition-colors mb-8"
+          className="inline-flex items-center gap-2 text-blue-500 hover:text-blue-400 transition-colors mb-6 sm:mb-8 text-sm sm:text-base"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Login
         </Link>
         
-        <div className="bg-gray-800/30 border border-gray-700 rounded-xl p-8">
-          <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Mail className="w-8 h-8 text-blue-400" />
+        <div className="bg-gray-800/30 border border-gray-700 rounded-xl p-5 sm:p-8">
+          <div className="text-center mb-6 sm:mb-8">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+              <Mail className="w-6 h-6 sm:w-8 sm:h-8 text-blue-400" />
             </div>
-            <h1 className="text-3xl font-bold text-white mb-4">Reset Password</h1>
-            <p className="text-gray-400">
+            <h1 className="text-2xl sm:text-3xl font-bold text-white mb-3 sm:mb-4">Reset Password</h1>
+            <p className="text-gray-400 text-sm sm:text-base">
               Enter your email address and we'll send you a link to reset your password.
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6 mobile-form">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                 Email Address
               </label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 sm:px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
                 placeholder="your@email.com"
                 required
               />
             </div>
 
             {error && (
-              <div className="bg-red-500/10 border border-red-500 rounded-lg p-4">
-                <p className="text-red-400 text-sm">{error}</p>
+              <div className="bg-red-500/10 border border-red-500 rounded-lg p-3 sm:p-4">
+                <p className="text-red-400 text-xs sm:text-sm">{error}</p>
               </div>
             )}
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-blue-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-blue-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold hover:bg-blue-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
             >
               {loading ? 'Sending Reset Link...' : 'Send Reset Link'}
             </button>
@@ -126,7 +126,7 @@ const ForgotPassword: React.FC = () => {
             <div className="text-center">
               <Link
                 to="/login"
-                className="text-gray-400 hover:text-white transition-colors text-sm"
+                className="text-gray-400 hover:text-white transition-colors text-xs sm:text-sm"
               >
                 Remember your password? Sign in
               </Link>

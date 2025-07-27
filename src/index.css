@@ -10,6 +10,10 @@ html, body {
   background-color: #111827 !important; /* gray-900 */
   color: white !important;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  /* Performance optimizations */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 #root {
@@ -59,4 +63,216 @@ html, body {
 /* Ensure visibility */
 body *, #root * {
   color: inherit;
+}
+
+/* ===== MOBILE & PERFORMANCE OPTIMIZATIONS ===== */
+
+/* Mobile Logo Optimization */
+@media (max-width: 768px) {
+  img[alt="ConnectX"], img[alt="Trade4me"], img[alt="Phemex Exchange"] {
+    max-height: 48px !important;
+    height: auto !important;
+    width: auto !important;
+    object-fit: contain !important;
+  }
+  
+  /* Mobile header adjustments */
+  header {
+    padding: 0.5rem 1rem !important;
+  }
+  
+  /* Mobile navigation */
+  .mobile-nav {
+    font-size: 0.875rem !important;
+  }
+  
+  /* Mobile hero text */
+  .hero-title {
+    font-size: 2.5rem !important;
+    line-height: 1.1 !important;
+  }
+  
+  /* Mobile buttons */
+  .mobile-button {
+    padding: 0.75rem 1.5rem !important;
+    font-size: 0.875rem !important;
+  }
+  
+  /* Mobile cards */
+  .mobile-card {
+    padding: 1rem !important;
+    margin: 0.5rem 0 !important;
+  }
+  
+  /* Mobile forms */
+  .mobile-form input, .mobile-form select, .mobile-form textarea {
+    font-size: 16px !important; /* Prevents zoom on iOS */
+    padding: 0.75rem !important;
+  }
+  
+  /* Mobile tables - make them scrollable */
+  .mobile-table-container {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  
+  /* Mobile modal adjustments */
+  .mobile-modal {
+    margin: 1rem !important;
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+  }
+}
+
+/* Tablet optimizations */
+@media (min-width: 769px) and (max-width: 1024px) {
+  img[alt="ConnectX"], img[alt="Trade4me"] {
+    max-height: 56px !important;
+  }
+}
+
+/* Performance optimizations for images */
+img {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  /* Lazy loading hint */
+  loading: lazy;
+  /* Prevent layout shift */
+  height: auto;
+  max-width: 100%;
+}
+
+/* Performance optimizations for animations */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Smooth scrolling for better UX */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Touch targets for mobile */
+@media (max-width: 768px) {
+  button, a, input, select, textarea {
+    min-height: 44px !important; /* iOS recommended touch target */
+    min-width: 44px !important;
+  }
+  
+  /* Larger tap targets for icons */
+  .icon-button {
+    padding: 12px !important;
+  }
+}
+
+/* Prevent horizontal scroll on mobile */
+body {
+  overflow-x: hidden;
+}
+
+/* Optimize font loading */
+@font-face {
+  font-family: 'System';
+  src: local('system-ui'), local('-apple-system'), local('BlinkMacSystemFont');
+  font-display: swap;
+}
+
+/* Critical CSS for above-the-fold content */
+.critical-content {
+  contain: layout style paint;
+}
+
+/* Optimize background gradients for mobile */
+@media (max-width: 768px) {
+  .gradient-bg {
+    background-attachment: scroll !important; /* Better performance on mobile */
+  }
+}
+
+/* Improve text readability on mobile */
+@media (max-width: 768px) {
+  p, li, span {
+    line-height: 1.6 !important;
+    font-size: 1rem !important;
+  }
+  
+  h1 { font-size: 2rem !important; }
+  h2 { font-size: 1.75rem !important; }
+  h3 { font-size: 1.5rem !important; }
+  h4 { font-size: 1.25rem !important; }
+}
+
+/* Optimize video elements for mobile */
+@media (max-width: 768px) {
+  video {
+    width: 100% !important;
+    height: auto !important;
+    max-height: 50vh !important;
+  }
+}
+
+/* Improve form UX on mobile */
+@media (max-width: 768px) {
+  .form-container {
+    padding: 1rem !important;
+  }
+  
+  .form-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+}
+
+/* Optimize loading states */
+.loading-skeleton {
+  background: linear-gradient(90deg, #374151 25%, #4B5563 50%, #374151 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Improve accessibility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Focus indicators for keyboard navigation */
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 2px solid #3B82F6 !important;
+  outline-offset: 2px !important;
+}
+
+/* Optimize for dark mode */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+  }
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  body {
+    background: white !important;
+    color: black !important;
+  }
 }

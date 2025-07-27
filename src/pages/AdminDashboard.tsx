@@ -6,6 +6,7 @@ import ConsultationManagement from '../components/ConsultationManagement';
 import TutorialManagement from '../components/TutorialManagement';
 import MarketingMaterialManagement from '../components/MarketingMaterialManagement';
 import WebinarManagement from '../components/WebinarManagement';
+import HelpCenterManager from '../components/HelpCenterManager';
 import { 
   Users, 
   Calendar, 
@@ -20,7 +21,8 @@ import {
   Clock,
   Award,
   Palette,
-  Video
+  Video,
+  HelpCircle
 } from 'lucide-react';
 
 interface AdminStats {
@@ -124,27 +126,27 @@ const AdminDashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-900">
       {/* Header */}
-      <header className="bg-gray-800/50 border-b border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+      <header className="bg-gray-800/50 border-b border-gray-700 critical-content">
+        <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
+          <div className="flex items-center justify-between h-14 sm:h-16">
             <div className="flex items-center gap-4">
-              <div className="w-10 h-10 bg-red-500/20 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-red-500/20 rounded-lg flex items-center justify-center">
                 <Shield className="w-5 h-5 text-red-400" />
               </div>
               <div>
-                <span className="text-xl font-bold text-white">Admin Dashboard</span>
-                <div className="text-sm text-gray-400">Connect<span className="text-blue-500">X</span> Platform Management</div>
+                <span className="text-lg sm:text-xl font-bold text-white">Admin Dashboard</span>
+                <div className="text-xs sm:text-sm text-gray-400 hidden sm:block">Connect<span className="text-blue-500">X</span> Platform Management</div>
               </div>
             </div>
             
-            <div className="flex items-center gap-4">
-              <div className="text-right">
+            <div className="flex items-center gap-2 sm:gap-4">
+              <div className="text-right hidden sm:block">
                 <div className="text-white font-medium">Administrator</div>
-                <div className="text-sm text-gray-400">{user?.email}</div>
+                <div className="text-xs lg:text-sm text-gray-400">{user?.email}</div>
               </div>
               <button
                 onClick={handleSignOut}
-                className="p-2 text-gray-400 hover:text-white transition-colors"
+                className="p-2 text-gray-400 hover:text-white transition-colors icon-button rounded-md hover:bg-gray-800/50"
                 title="Sign Out"
               >
                 <LogOut className="w-5 h-5" />
@@ -154,20 +156,20 @@ const AdminDashboard: React.FC = () => {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-8">
         {/* Stats Overview */}
         {activeTab === 'overview' && (
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-white mb-6">Platform Overview</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="bg-gray-800/30 border border-gray-700 rounded-xl p-6">
+          <div className="mb-6 sm:mb-8">
+            <h2 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">Platform Overview</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
+              <div className="mobile-card bg-gray-800/30 border border-gray-700 rounded-xl p-4 sm:p-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
                     <Users className="w-6 h-6 text-blue-400" />
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-white">{stats.totalPartners}</div>
-                    <div className="text-sm text-gray-400">Total Partners</div>
+                    <div className="text-xl sm:text-2xl font-bold text-white">{stats.totalPartners}</div>
+                    <div className="text-xs sm:text-sm text-gray-400">Total Partners</div>
                   </div>
                 </div>
                 <div className="text-xs text-gray-500">
@@ -175,14 +177,14 @@ const AdminDashboard: React.FC = () => {
                 </div>
               </div>
 
-              <div className="bg-gray-800/30 border border-gray-700 rounded-xl p-6">
+              <div className="mobile-card bg-gray-800/30 border border-gray-700 rounded-xl p-4 sm:p-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-500/20 rounded-lg flex items-center justify-center">
                     <UserCheck className="w-6 h-6 text-green-400" />
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-white">{stats.approvedPartners}</div>
-                    <div className="text-sm text-gray-400">Active Partners</div>
+                    <div className="text-xl sm:text-2xl font-bold text-white">{stats.approvedPartners}</div>
+                    <div className="text-xs sm:text-sm text-gray-400">Active Partners</div>
                   </div>
                 </div>
                 <div className="text-xs text-gray-500">
@@ -190,35 +192,18 @@ const AdminDashboard: React.FC = () => {
                 </div>
               </div>
 
-              <div className="bg-gray-800/30 border border-gray-700 rounded-xl p-6">
+              <div className="mobile-card bg-gray-800/30 border border-gray-700 rounded-xl p-4 sm:p-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-500/20 rounded-lg flex items-center justify-center">
                     <Calendar className="w-6 h-6 text-purple-400" />
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-white">{stats.totalConsultations}</div>
-                    <div className="text-sm text-gray-400">Consultations</div>
+                    <div className="text-xl sm:text-2xl font-bold text-white">{stats.totalConsultations}</div>
+                    <div className="text-xs sm:text-sm text-gray-400">Consultations</div>
                   </div>
                 </div>
                 <div className="text-xs text-gray-500">
                   {stats.pendingConsultations} pending
-                </div>
-              </div>
-
-              <div className="bg-gray-800/30 border border-gray-700 rounded-xl p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 bg-orange-500/20 rounded-lg flex items-center justify-center">
-                    <DollarSign className="w-6 h-6 text-orange-400" />
-                  </div>
-                  <div>
-                    <div className="text-2xl font-bold text-white">
-                      ${stats.totalEarnings.toLocaleString()}
-                    </div>
-                    <div className="text-sm text-gray-400">Total Earnings</div>
-                  </div>
-                </div>
-                <div className="text-xs text-gray-500">
-                  Across all partners
                 </div>
               </div>
             </div>
@@ -226,8 +211,8 @@ const AdminDashboard: React.FC = () => {
         )}
 
         {/* Navigation Tabs */}
-        <div className="border-b border-gray-700 mb-8">
-          <nav className="flex space-x-8">
+        <div className="border-b border-gray-700 mb-4 sm:mb-8 overflow-x-auto">
+          <nav className="flex space-x-4 sm:space-x-8 min-w-max">
             {[
               { id: 'overview', label: 'Overview', icon: BarChart3, color: 'text-blue-400' },
               { id: 'partners', label: 'Partners', icon: Users, color: 'text-green-400' },
@@ -235,18 +220,20 @@ const AdminDashboard: React.FC = () => {
               { id: 'tutorials', label: 'Tutorials', icon: BookOpen, color: 'text-orange-400' },
               { id: 'marketing', label: 'Marketing Materials', icon: Palette, color: 'text-pink-400' },
               { id: 'webinars', label: 'Webinars', icon: Video, color: 'text-green-400' },
+              { id: 'help-center', label: 'Help Center', icon: HelpCircle, color: 'text-blue-400' },
             ].map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-all duration-300 ${
+                className={`flex items-center gap-2 py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm transition-all duration-300 whitespace-nowrap min-h-[44px] ${
                   activeTab === tab.id
                     ? `border-blue-500 ${tab.color}`
                     : 'border-transparent text-gray-400 hover:text-gray-300'
                 }`}
               >
                 <tab.icon className="w-4 h-4" />
-                {tab.label}
+                <span className="hidden lg:inline">{tab.label}</span>
+                <span className="lg:hidden">{tab.label.split(' ')[0]}</span>
               </button>
             ))}
           </nav>
@@ -300,18 +287,10 @@ const AdminDashboard: React.FC = () => {
               </div>
             </div>
 
-            {/* Quick Actions - ORIGINAL VIBRANT COLORS */}
+            {/* Quick Actions */}
             <div className="bg-gray-800/30 border border-gray-700 rounded-xl p-6">
               <h3 className="text-xl font-bold text-white mb-6">Quick Actions</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <button
-                  onClick={() => setActiveTab('partners')}
-                  className="bg-blue-600 text-white p-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center gap-3"
-                >
-                  <Users className="w-5 h-5" />
-                  Manage Partners
-                </button>
-                
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <button
                   onClick={() => setActiveTab('consultations')}
                   className="bg-purple-600 text-white p-4 rounded-lg font-semibold hover:bg-purple-700 transition-colors flex items-center gap-3"
@@ -344,6 +323,7 @@ const AdminDashboard: React.FC = () => {
         {activeTab === 'tutorials' && <TutorialManagement />}
         {activeTab === 'marketing' && <MarketingMaterialManagement />}
         {activeTab === 'webinars' && <WebinarManagement />}
+        {activeTab === 'help-center' && <HelpCenterManager />}
       </div>
     </div>
   );

@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Edit, Trash2, Save, X, ExternalLink } from 'lucide-react';
+import { Edit, Trash2, Save, X, ExternalLink, ChevronDown, ChevronUp, Search } from 'lucide-react';
+
+// Import logos
+import phemexLogo from '../assets/phemex-logo.png';
+import trade4meLogo from '../assets/trade4me-logo-final.png';
+import connectXLogo from '../assets/ConnectX-logo.png';
 
 interface Partner {
   id: string;
@@ -30,6 +35,8 @@ export default function AdminPartnerManagement() {
   const [partners, setPartners] = useState<Partner[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingPartner, setEditingPartner] = useState<Partner | null>(null);
+  const [expandedPartners, setExpandedPartners] = useState<Set<string>>(new Set());
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     fetchPartners();
@@ -43,6 +50,7 @@ export default function AdminPartnerManagement() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
+
       setPartners(data || []);
     } catch (error) {
       console.error('Error fetching partners:', error);
@@ -92,6 +100,59 @@ export default function AdminPartnerManagement() {
     }
   };
 
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return '-';
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  const formatSocialMediaLinks = (links: string | null) => {
+    if (!links) return [];
+    return links.split('\n').filter(link => link.trim());
+  };
+
+  const formatStrategies = (strategies: string | null) => {
+    if (!strategies) return [];
+    return strategies.split(',').map(s => s.trim());
+  };
+
+  const togglePartnerExpansion = (partnerId: string) => {
+    const newExpanded = new Set(expandedPartners);
+    if (newExpanded.has(partnerId)) {
+      newExpanded.delete(partnerId);
+    } else {
+      newExpanded.add(partnerId);
+    }
+    setExpandedPartners(newExpanded);
+  };
+
+  // Filter partners based on search term
+  const filteredPartners = partners.filter(partner => {
+    if (!searchTerm) return true;
+    
+    const searchLower = searchTerm.toLowerCase();
+    const searchableFields = [
+      partner.company_name || '',
+      partner.affiliate_referral_code || '',
+      partner.partner_type || '',
+      partner.status || '',
+      partner.experience_level || '',
+      partner.phemex_uid || '',
+      partner.website_url || '',
+      partner.social_media_links || '',
+      partner.preferred_strategies || '',
+      partner.id || '',
+      partner.user_id || ''
+    ];
+    
+    return searchableFields.some(field => 
+      field.toLowerCase().includes(searchLower)
+    );
+  });
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -106,7 +167,34 @@ export default function AdminPartnerManagement() {
         <h2 className="text-2xl font-bold text-white">Partner Management</h2>
         <div className="text-sm text-gray-400">
           Total Partners: {partners.length}
+          {searchTerm && (
+            <div className="text-xs text-blue-400 mt-1">
+              Showing {filteredPartners.length} of {partners.length} partners
+            </div>
+          )}
         </div>
+      </div>
+
+      {/* Search Bar */}
+      <div className="relative">
+        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <Search className="h-5 w-5 text-gray-400" />
+        </div>
+        <input
+          type="text"
+          placeholder="Search partners by name, code, type, status, UID, website, or strategies..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="block w-full pl-10 pr-3 py-3 border border-gray-600 rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        />
+        {searchTerm && (
+          <button
+            onClick={() => setSearchTerm('')}
+            className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-white"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        )}
       </div>
 
       {editingPartner && (
@@ -198,8 +286,9 @@ export default function AdminPartnerManagement() {
 
               <div className="grid grid-cols-1 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Partner Referral Link (Phemex)
+                  <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
+                    Partner Referral Link 
+                    <img src={phemexLogo} alt="Phemex" className="h-4 w-auto" />
                   </label>
                   <input
                     type="url"
@@ -208,14 +297,19 @@ export default function AdminPartnerManagement() {
                     className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="https://phemex.com/copy-trading/follower-view/home?id=8086397&ref=partner-code"
                   />
-                  <p className="text-xs text-gray-400 mt-1">
-                    Direct link to Trade4me strategy on Phemex with partner's referral code
+                  <p className="text-xs text-gray-400 mt-1 flex items-center gap-1 flex-wrap">
+                    Direct link to 
+                    <img src={trade4meLogo} alt="Trade4me" className="h-3 w-auto" />
+                    strategy on 
+                    <img src={phemexLogo} alt="Phemex" className="h-3 w-auto" />
+                    with partner's referral code
                   </p>
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Phemex UID
+                  <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
+                    <img src={phemexLogo} alt="Phemex" className="h-4 w-auto" />
+                    UID
                   </label>
                   <input
                     type="text"
@@ -224,8 +318,10 @@ export default function AdminPartnerManagement() {
                     className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="12345678"
                   />
-                  <p className="text-xs text-gray-400 mt-1">
-                    Partner's Phemex Account UID for commission tracking
+                  <p className="text-xs text-gray-400 mt-1 flex items-center gap-1 flex-wrap">
+                    Partner's 
+                    <img src={phemexLogo} alt="Phemex" className="h-3 w-auto" />
+                    Account UID for commission tracking
                   </p>
                 </div>
               </div>
@@ -250,142 +346,342 @@ export default function AdminPartnerManagement() {
         </div>
       )}
 
-      <div className="bg-gray-800 rounded-lg overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-700">
-              <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                  Partner Info
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                  Type & Status
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                  Commission
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                  Referral Link
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                  Phemex UID
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-700">
-              {partners.map((partner) => (
-                <tr key={partner.id} className="hover:bg-gray-700">
-                  <td className="px-4 py-3">
-                    <div>
-                      <div className="text-white font-medium">
-                        {partner.company_name || 'Individual Partner'}
-                      </div>
-                      <div className="text-gray-400 text-sm">
-                        Code: {partner.affiliate_referral_code}
-                      </div>
-                      {partner.website_url && (
-                        <div className="text-blue-400 text-sm">
-                          <a href={partner.website_url} target="_blank" rel="noopener noreferrer">
-                            {partner.website_url}
-                          </a>
-                        </div>
-                      )}
+      <div className="space-y-6">
+        {filteredPartners.map((partner) => (
+          <div key={partner.id} className="bg-gray-800 rounded-lg border border-gray-700/50">
+            {/* Partner Header */}
+            <div className="bg-gray-700 px-6 py-4 flex items-center justify-between border-b border-gray-600">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                  <span className="text-blue-400 font-bold text-lg">
+                    {(partner.company_name || 'Individual Partner').charAt(0).toUpperCase()}
+                  </span>
+                </div>
+                <div>
+                  <h3 className="text-white font-semibold text-lg">
+                    {partner.company_name || 'Individual Partner'}
+                  </h3>
+                  <div className="flex items-center gap-3 mt-1">
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                      {partner.partner_type}
+                    </span>
+                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${
+                      partner.status === 'approved' ? 'bg-green-500/20 text-green-300 border-green-500/30' :
+                      partner.status === 'pending' ? 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30' :
+                      'bg-red-500/20 text-red-300 border-red-500/30'
+                    }`}>
+                      {partner.status}
+                    </span>
+                    <span className="text-gray-400 text-sm">
+                      Code: {partner.affiliate_referral_code}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => togglePartnerExpansion(partner.id)}
+                  className="p-2 text-gray-400 hover:text-white transition-colors bg-gray-600/50 rounded-lg"
+                  title={expandedPartners.has(partner.id) ? "Show Less Details" : "Show More Details"}
+                >
+                  {expandedPartners.has(partner.id) ? (
+                    <ChevronUp className="w-4 h-4" />
+                  ) : (
+                    <ChevronDown className="w-4 h-4" />
+                  )}
+                </button>
+                <button
+                  onClick={() => setEditingPartner(partner)}
+                  className="p-2 text-blue-400 hover:text-blue-300 transition-colors bg-blue-500/10 rounded-lg"
+                  title="Edit Partner"
+                >
+                  <Edit className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => deletePartner(partner.id)}
+                  className="p-2 text-red-400 hover:text-red-300 transition-colors bg-red-500/10 rounded-lg"
+                  title="Delete Partner"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Partner Details Grid */}
+            <div className="p-6">
+              {/* Always Visible Summary */}
+              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
+                {/* Quick Stats */}
+                <div className="bg-gray-700/30 rounded-lg p-4">
+                  <h4 className="text-sm font-medium text-gray-300 mb-2">Performance</h4>
+                  <div className="space-y-1 text-sm">
+                    <div className="text-green-400 font-semibold text-lg">
+                      ${partner.total_earnings?.toLocaleString() || 0}
                     </div>
-                  </td>
-                  <td className="px-4 py-3">
+                    <div className="text-gray-400">
+                      {partner.total_referrals || 0} referrals
+                    </div>
+                  </div>
+                </div>
+
+                {/* Contact Info */}
+                <div className="bg-gray-700/30 rounded-lg p-4">
+                  <h4 className="text-sm font-medium text-gray-300 mb-2">Contact</h4>
+                  <div className="space-y-1 text-sm">
+                    <div className="text-white">
+                      {partner.experience_level} level
+                    </div>
+                    <div className="text-gray-400">
+                      {partner.audience_size?.toLocaleString() || 'N/A'} audience
+                    </div>
+                  </div>
+                </div>
+
+                {/* Status */}
+                <div className="bg-gray-700/30 rounded-lg p-4">
+                  <h4 className="text-sm font-medium text-gray-300 mb-2">Commission</h4>
+                  <div className="space-y-1 text-sm">
+                    <div className="text-white">
+                      {partner.commission_rate || 0}% rate
+                    </div>
+                    <div className="text-green-400">
+                      ${partner.customer_onboarding_bonus || 0} bonus
+                    </div>
+                  </div>
+                </div>
+
+                {/* Phemex Status */}
+                <div className="bg-gray-700/30 rounded-lg p-4">
+                  <h4 className="text-sm font-medium text-gray-300 mb-2 flex items-center gap-1">
+                    <img src={phemexLogo} alt="Phemex" className="h-3 w-auto" /> Status
+                  </h4>
+                  <div className="space-y-1 text-sm">
+                    <div className="text-white">
+                      UID: {partner.phemex_uid || 'Not set'}
+                    </div>
+                    <div className={partner.partner_referral_link ? "text-green-400" : "text-red-400"}>
+                      {partner.partner_referral_link ? "✓ Linked" : "Not linked"}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Expandable Detailed View */}
+              {expandedPartners.has(partner.id) && (
+                <div className="border-t border-gray-600 pt-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                
+                {/* System IDs */}
+                <div className="bg-gray-700/30 rounded-lg p-4">
+                  <h4 className="text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
+                    <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                    System IDs
+                  </h4>
+                  <div className="space-y-2 text-sm">
                     <div>
-                      <div className="mb-2">
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-500/20 text-blue-300 border border-blue-500/30">
-                        {partner.partner_type}
-                      </span>
-                      </div>
+                      <span className="text-gray-400">Partner ID:</span>
+                      <span className="text-white ml-2 font-mono text-xs">{partner.id.substring(0, 8)}...</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-400">User ID:</span>
+                      <span className="text-white ml-2 font-mono text-xs">{partner.user_id.substring(0, 8)}...</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Contact & Links */}
+                <div className="bg-gray-700/30 rounded-lg p-4">
+                  <h4 className="text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                    Contact & Links
+                  </h4>
+                  <div className="space-y-2 text-sm">
+                    {partner.website_url ? (
                       <div>
-                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${
-                          partner.status === 'approved' ? 'bg-green-100 text-green-800' :
-                          partner.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-red-100 text-red-800'
-                        } ${
-                          partner.status === 'approved' ? 'bg-green-500/20 text-green-300 border-green-500/30' :
-                          partner.status === 'pending' ? 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30' :
-                          'bg-red-500/20 text-red-300 border-red-500/30'
-                        }`}>
-                          {partner.status}
-                        </span>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-white text-sm">
-                    <div className="space-y-1">
-                      <div>Rate: {partner.commission_rate || 0}%</div>
-                      <div>Bonus: ${partner.customer_onboarding_bonus || 0}</div>
-                      <div>Profit: {partner.profit_share_rate || 0}%</div>
-                      <div>Rebate: {partner.rebate_rate || 0}%</div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-white text-sm">
-                    {partner.partner_referral_link ? (
-                      <div className="flex items-center gap-2">
-                        <span className="text-green-400 text-xs">✓ Configured</span>
-                        <button
-                          onClick={() => window.open(partner.partner_referral_link!, '_blank')}
-                          className="p-1 text-blue-400 hover:text-blue-300 transition-colors"
-                          title="Open Referral Link"
+                        <span className="text-gray-400">Website:</span>
+                        <a 
+                          href={partner.website_url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-blue-400 hover:text-blue-300 ml-2 text-xs break-all"
                         >
-                          <ExternalLink className="w-4 h-4" />
-                        </button>
+                          {partner.website_url}
+                        </a>
                       </div>
                     ) : (
-                      <span className="text-red-400 text-xs">Not configured</span>
+                      <div className="text-gray-500 text-xs">No website provided</div>
                     )}
-                  </td>
-                  <td className="px-4 py-3 text-white text-sm">
-                    {partner.phemex_uid || '-'}
-                  </td>
-                  <td className="px-4 py-3">
-                    {/* Landing Page Link */}
-                    {partner.partner_referral_link && partner.affiliate_referral_code && (
-                      <div className="mb-2">
-                        <button
-                          onClick={() => {
-                            const landingUrl = `${window.location.origin}/trade4me/${partner.affiliate_referral_code}`;
-                            window.open(landingUrl, '_blank');
-                          }}
-                          className="p-1 text-purple-400 hover:text-purple-300 transition-colors"
-                          title="View Landing Page"
-                        >
-                          <ExternalLink className="w-4 h-4" />
-                        </button>
+                    
+                    {partner.social_media_links ? (
+                      <div>
+                        <span className="text-gray-400">Social Media:</span>
+                        <div className="mt-1 space-y-1">
+                          {formatSocialMediaLinks(partner.social_media_links).map((link, index) => (
+                            <a 
+                              key={index}
+                              href={link} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="block text-blue-400 hover:text-blue-300 text-xs break-all"
+                            >
+                              {link}
+                            </a>
+                          ))}
+                        </div>
                       </div>
+                    ) : (
+                      <div className="text-gray-500 text-xs">No social media provided</div>
                     )}
-                    <div className="flex items-center gap-2">
+                  </div>
+                </div>
+
+                {/* Additional Rates */}
+                <div className="bg-gray-700/30 rounded-lg p-4">
+                  <h4 className="text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
+                    <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
+                    Additional Rates
+                  </h4>
+                  <div className="space-y-2 text-sm">
+                    <div>
+                      <span className="text-gray-400">Profit Share:</span>
+                      <span className="text-white ml-2">{partner.profit_share_rate || 0}%</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-400">Rebate Rate:</span>
+                      <span className="text-white ml-2">{partner.rebate_rate || 0}%</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Preferred Strategies */}
+                <div className="bg-gray-700/30 rounded-lg p-4">
+                  <h4 className="text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
+                    <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
+                    Preferred Strategies
+                  </h4>
+                  <div>
+                    {partner.preferred_strategies ? (
+                      <div className="space-y-1">
+                        {formatStrategies(partner.preferred_strategies).map((strategy, index) => (
+                          <span key={index} className="inline-block bg-gray-600 text-white text-xs px-2 py-1 rounded mr-1 mb-1">
+                            {strategy}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <span className="text-gray-500 text-xs">No strategies specified</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Full Phemex Details */}
+                <div className="bg-gray-700/30 rounded-lg p-4">
+                  <h4 className="text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
+                    <div className="w-2 h-2 bg-indigo-400 rounded-full"></div>
+                    <img src={phemexLogo} alt="Phemex" className="h-3 w-auto" /> Full Integration
+                  </h4>
+                  <div className="space-y-2 text-sm">
+                    <div>
+                      <span className="text-gray-400">Referral Link:</span>
+                      <div className="mt-1">
+                        {partner.partner_referral_link ? (
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <span className="text-green-400 text-xs">✓ Configured</span>
+                              <button
+                                onClick={() => window.open(partner.partner_referral_link!, '_blank')}
+                                className="p-1 text-blue-400 hover:text-blue-300 transition-colors"
+                                title="Open Referral Link"
+                              >
+                                <ExternalLink className="w-3 h-3" />
+                              </button>
+                            </div>
+                            <div className="text-xs text-gray-400 break-all">
+                              {partner.partner_referral_link}
+                            </div>
+                          </div>
+                        ) : (
+                          <span className="text-red-400 text-xs">Not configured</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Timestamps */}
+                <div className="bg-gray-700/30 rounded-lg p-4">
+                  <h4 className="text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
+                    <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                    Timestamps
+                  </h4>
+                  <div className="space-y-2 text-sm">
+                    <div>
+                      <span className="text-gray-400">Created:</span>
+                      <span className="text-white ml-2">{formatDate(partner.created_at)}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-400">Updated:</span>
+                      <span className="text-white ml-2">{formatDate(partner.updated_at)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Landing Page */}
+                {partner.partner_referral_link && partner.affiliate_referral_code && (
+                  <div className="bg-gray-700/30 rounded-lg p-4">
+                    <h4 className="text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
+                      <div className="w-2 h-2 bg-pink-400 rounded-full"></div>
+                      Landing Page
+                    </h4>
+                    <div className="space-y-2">
+                      <p className="text-gray-400 text-xs">
+                        Custom <img src={trade4meLogo} alt="Trade4me" className="h-3 w-auto inline" /> landing page
+                      </p>
                       <button
-                        onClick={() => setEditingPartner(partner)}
-                        className="p-1 text-blue-400 hover:text-blue-300 transition-colors"
-                        title="Edit Partner"
+                        onClick={() => {
+                          const landingUrl = `${window.location.origin}/trade4me/${partner.affiliate_referral_code}`;
+                          window.open(landingUrl, '_blank');
+                        }}
+                        className="w-full px-3 py-2 bg-purple-600 text-white rounded text-xs hover:bg-purple-700 transition-colors flex items-center justify-center gap-2"
                       >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => deletePartner(partner.id)}
-                        className="p-1 text-red-400 hover:text-red-300 transition-colors"
-                        title="Delete Partner"
-                      >
-                        <Trash2 className="w-4 h-4" />
+                        <ExternalLink className="w-3 h-3" />
+                        View Landing Page
                       </button>
                     </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  </div>
+                )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
 
-        {partners.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-gray-400">No partners found.</p>
+        {partners.length === 0 && !searchTerm && (
+          <div className="text-center py-20">
+            <div className="w-16 h-16 bg-gray-700 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <span className="text-gray-400 text-2xl">👥</span>
+            </div>
+            <h3 className="text-xl font-semibold text-gray-400 mb-2">No Partners Yet</h3>
+            <p className="text-gray-500">Partners who register will appear here with all their details.</p>
+          </div>
+        )}
+
+        {filteredPartners.length === 0 && searchTerm && (
+          <div className="text-center py-20">
+            <div className="w-16 h-16 bg-gray-700 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Search className="text-gray-400 text-2xl w-8 h-8" />
+            </div>
+            <h3 className="text-xl font-semibold text-gray-400 mb-2">No Partners Found</h3>
+            <p className="text-gray-500">
+              No partners match your search for "{searchTerm}". Try adjusting your search terms.
+            </p>
+            <button
+              onClick={() => setSearchTerm('')}
+              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Clear Search
+            </button>
           </div>
         )}
       </div>

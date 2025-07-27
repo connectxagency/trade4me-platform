@@ -66,7 +66,7 @@ const ConsultationModal: React.FC<ConsultationModalProps> = ({ isOpen, onClose }
       if (date.getDay() !== 0 && date.getDay() !== 6) {
         dates.push({
           value: date.toISOString().split('T')[0],
-          label: date.toLocaleDateString('de-DE', { 
+          label: date.toLocaleDateString('en-US', { 
             weekday: 'long', 
             year: 'numeric', 
             month: 'long', 
@@ -127,7 +127,7 @@ const ConsultationModal: React.FC<ConsultationModalProps> = ({ isOpen, onClose }
       setStep('success');
     } catch (error) {
       console.error('Error booking consultation:', error);
-      alert('Fehler beim Buchen des Termins. Bitte versuchen Sie es erneut.');
+      alert('Error booking appointment. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -158,7 +158,7 @@ const ConsultationModal: React.FC<ConsultationModalProps> = ({ isOpen, onClose }
 
   const availableDates = Object.keys(groupedSlots).map(date => ({
     value: date,
-    label: new Date(date + 'T00:00:00').toLocaleDateString('de-DE', { 
+    label: new Date(date + 'T00:00:00').toLocaleDateString('en-US', { 
       weekday: 'long', 
       year: 'numeric', 
       month: 'long', 
@@ -169,44 +169,44 @@ const ConsultationModal: React.FC<ConsultationModalProps> = ({ isOpen, onClose }
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-800 rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2 sm:p-4">
+      <div className="mobile-modal bg-gray-800 rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-700">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-700">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
               <Calendar className="w-5 h-5 text-blue-400" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-white">Beratungstermin vereinbaren</h2>
-              <p className="text-sm text-gray-400">Lassen Sie uns über Ihre Partnerschaft sprechen</p>
+              <h2 className="text-lg sm:text-xl font-bold text-white">Schedule Consultation</h2>
+              <p className="text-xs sm:text-sm text-gray-400 hidden sm:block">Let's discuss your partnership</p>
             </div>
           </div>
           <button
             onClick={handleClose}
-            className="p-2 text-gray-400 hover:text-white transition-colors"
+            className="p-2 text-gray-400 hover:text-white transition-colors icon-button"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           {step === 'datetime' && (
             <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-semibold text-white mb-4">Wählen Sie Datum und Uhrzeit</h3>
+                <h3 className="text-base sm:text-lg font-semibold text-white mb-4">Select Date and Time</h3>
                 
                 {/* Date Selection */}
                 <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-300 mb-3">
-                    Verfügbare Termine {loadingSlots && '(Wird geladen...)'}
+                  <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-3">
+                    Available Dates {loadingSlots && '(Loading...)'}
                   </label>
-                  <div className="grid grid-cols-1 gap-2 max-h-48 overflow-y-auto">
+                  <div className="grid grid-cols-1 gap-2 max-h-40 sm:max-h-48 overflow-y-auto">
                     {availableDates.map((date) => (
                       <button
                         key={date.value}
                         onClick={() => setSelectedDate(date.value)}
-                        className={`p-3 text-left rounded-lg border transition-all ${
+                        className={`p-2 sm:p-3 text-left rounded-lg border transition-all text-sm min-h-[44px] ${
                           selectedDate === date.value
                             ? 'border-blue-500 bg-blue-500/10 text-blue-400'
                             : 'border-gray-600 hover:border-gray-500 text-gray-300'
@@ -221,15 +221,15 @@ const ConsultationModal: React.FC<ConsultationModalProps> = ({ isOpen, onClose }
                 {/* Time Selection */}
                 {selectedDate && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-3">
-                      Verfügbare Uhrzeiten für {new Date(selectedDate + 'T00:00:00').toLocaleDateString('de-DE')}
+                    <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-3">
+                      Available Times for {new Date(selectedDate + 'T00:00:00').toLocaleDateString('en-US')}
                     </label>
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                       {(groupedSlots[selectedDate] || []).map((time) => (
                         <button
                           key={time}
                           onClick={() => setSelectedTime(time)}
-                          className={`p-2 text-center rounded-lg border transition-all ${
+                          className={`p-2 text-center rounded-lg border transition-all text-sm min-h-[44px] ${
                             selectedTime === time
                               ? 'border-blue-500 bg-blue-500/10 text-blue-400'
                               : 'border-gray-600 hover:border-gray-500 text-gray-300'
@@ -247,9 +247,9 @@ const ConsultationModal: React.FC<ConsultationModalProps> = ({ isOpen, onClose }
                 <button
                   onClick={() => setStep('details')}
                   disabled={!selectedDate || !selectedTime}
-                  className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-blue-600 text-white px-4 sm:px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base min-h-[44px]"
                 >
-                  Weiter zu den Details
+                  Continue to Details
                 </button>
               </div>
             </div>
@@ -258,31 +258,31 @@ const ConsultationModal: React.FC<ConsultationModalProps> = ({ isOpen, onClose }
           {step === 'details' && (
             <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-semibold text-white mb-4">Ihre Kontaktdaten</h3>
+                <h3 className="text-base sm:text-lg font-semibold text-white mb-4">Your Contact Information</h3>
                 
                 {/* Selected DateTime Display */}
-                <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4 mb-6">
+                <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3 sm:p-4 mb-6">
                   <div className="flex items-center gap-3">
                     <Calendar className="w-5 h-5 text-blue-400" />
                     <div>
-                      <div className="text-blue-400 font-medium">
-                        {new Date(selectedDate).toLocaleDateString('de-DE', { 
+                      <div className="text-blue-400 font-medium text-sm sm:text-base">
+                        {new Date(selectedDate).toLocaleDateString('en-US', { 
                           weekday: 'long', 
                           year: 'numeric', 
                           month: 'long', 
                           day: 'numeric' 
                         })}
                       </div>
-                      <div className="text-blue-300 text-sm flex items-center gap-1">
+                      <div className="text-blue-300 text-xs sm:text-sm flex items-center gap-1">
                         <Clock className="w-4 h-4" />
-                        {selectedTime} Uhr
+                        {selectedTime}
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <form onSubmit={handleSubmit} className="space-y-4 mobile-form form-container">
+                  <div className="form-grid grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-300 mb-2">
                         Name *
@@ -292,50 +292,50 @@ const ConsultationModal: React.FC<ConsultationModalProps> = ({ isOpen, onClose }
                         value={formData.name}
                         onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                         className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="Ihr vollständiger Name"
+                        placeholder="Your full name"
                         required
                       />
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
-                        E-Mail *
+                      <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
+                        Email *
                       </label>
                       <input
                         type="email"
                         value={formData.email}
                         onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                        className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="ihre@email.com"
+                        className="w-full px-3 sm:px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+                        placeholder="your@email.com"
                         required
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Unternehmen
+                    <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
+                      Company
                     </label>
                     <input
                       type="text"
                       value={formData.company}
                       onChange={(e) => setFormData(prev => ({ ...prev, company: e.target.value }))}
-                      className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Ihr Unternehmen (optional)"
+                      className="w-full px-3 sm:px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+                      placeholder="Your company (optional)"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Gesprächsthema *
+                    <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
+                      Topic *
                     </label>
                     <select
                       value={formData.topic}
                       onChange={(e) => setFormData(prev => ({ ...prev, topic: e.target.value }))}
-                      className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 sm:px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
                       required
                     >
-                      <option value="">Bitte wählen Sie ein Thema</option>
+                      <option value="">Please select a topic</option>
                       {topics.map((topic) => (
                         <option key={topic} value={topic}>{topic}</option>
                       ))}
@@ -343,32 +343,32 @@ const ConsultationModal: React.FC<ConsultationModalProps> = ({ isOpen, onClose }
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Nachricht
+                    <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
+                      Message
                     </label>
                     <textarea
                       value={formData.message}
                       onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
                       rows={4}
-                      className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Beschreiben Sie kurz, was Sie besprechen möchten..."
+                      className="w-full px-3 sm:px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+                      placeholder="Briefly describe what you'd like to discuss..."
                     />
                   </div>
 
-                  <div className="flex gap-3 pt-4">
+                  <div className="flex flex-col sm:flex-row gap-3 pt-4">
                     <button
                       type="button"
                       onClick={() => setStep('datetime')}
-                      className="flex-1 border border-gray-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-700 transition-colors"
+                      className="flex-1 border border-gray-600 text-white px-4 sm:px-6 py-3 rounded-lg font-semibold hover:bg-gray-700 transition-colors text-sm sm:text-base min-h-[44px]"
                     >
-                      Zurück
+                      Back
                     </button>
                     <button
                       type="submit"
                       disabled={loading || !formData.name || !formData.email || !formData.topic}
-                      className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex-1 bg-blue-600 text-white px-4 sm:px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base min-h-[44px]"
                     >
-                      {loading ? 'Wird gesendet...' : 'Termin bestätigen'}
+                      {loading ? 'Submitting...' : 'Confirm Appointment'}
                     </button>
                   </div>
                 </form>
@@ -377,20 +377,20 @@ const ConsultationModal: React.FC<ConsultationModalProps> = ({ isOpen, onClose }
           )}
 
           {step === 'success' && (
-            <div className="text-center py-8">
-              <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+            <div className="text-center py-6 sm:py-8">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
                 <CheckCircle className="w-8 h-8 text-green-400" />
               </div>
               
-              <h3 className="text-2xl font-bold text-white mb-4">Termin erfolgreich gebucht!</h3>
+              <h3 className="text-xl sm:text-2xl font-bold text-white mb-3 sm:mb-4">Appointment Booked Successfully!</h3>
               
-              <div className="bg-gray-700/30 rounded-lg p-6 mb-6 text-left">
-                <h4 className="text-lg font-semibold text-white mb-4">Termindetails:</h4>
+              <div className="bg-gray-700/30 rounded-lg p-4 sm:p-6 mb-4 sm:mb-6 text-left">
+                <h4 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4">Appointment Details:</h4>
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
                     <Calendar className="w-5 h-5 text-blue-400" />
-                    <span className="text-gray-300">
-                      {new Date(selectedDate).toLocaleDateString('de-DE', { 
+                    <span className="text-gray-300 text-sm">
+                      {new Date(selectedDate).toLocaleDateString('en-US', { 
                         weekday: 'long', 
                         year: 'numeric', 
                         month: 'long', 
@@ -400,32 +400,32 @@ const ConsultationModal: React.FC<ConsultationModalProps> = ({ isOpen, onClose }
                   </div>
                   <div className="flex items-center gap-3">
                     <Clock className="w-5 h-5 text-blue-400" />
-                    <span className="text-gray-300">{selectedTime} Uhr</span>
+                    <span className="text-gray-300 text-sm">{selectedTime}</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <User className="w-5 h-5 text-blue-400" />
-                    <span className="text-gray-300">{formData.name}</span>
+                    <span className="text-gray-300 text-sm">{formData.name}</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <Mail className="w-5 h-5 text-blue-400" />
-                    <span className="text-gray-300">{formData.email}</span>
+                    <span className="text-gray-300 text-sm">{formData.email}</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <MessageSquare className="w-5 h-5 text-blue-400" />
-                    <span className="text-gray-300">{formData.topic}</span>
+                    <span className="text-gray-300 text-sm">{formData.topic}</span>
                   </div>
                 </div>
               </div>
               
-              <p className="text-gray-400 mb-6">
-                Sie erhalten in Kürze eine Bestätigungs-E-Mail mit den Zugangsdaten für das Online-Meeting.
+              <p className="text-gray-400 mb-4 sm:mb-6 text-sm">
+                You will receive a confirmation email shortly with the access details for the online meeting.
               </p>
               
               <button
                 onClick={handleClose}
-                className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                className="bg-blue-600 text-white px-6 sm:px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors text-sm sm:text-base min-h-[44px]"
               >
-                Schließen
+                Close
               </button>
             </div>
           )}

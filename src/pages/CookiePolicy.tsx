@@ -1,19 +1,22 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import Header from '../components/Header';
 
 const CookiePolicy: React.FC = () => {
+  const location = useLocation();
+  const isFromTrade4me = location.pathname.includes('trade4me') || document.referrer.includes('trade4me');
+  
   return (
     <div className="bg-gray-900 min-h-screen">
       <div className="pt-24 pb-16 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
         <Link 
-          to="/" 
+          to={isFromTrade4me ? "/trade4me" : "/"} 
           className="inline-flex items-center gap-2 text-blue-500 hover:text-blue-400 transition-colors mb-8"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back to Home
+          {isFromTrade4me ? "Back to Trade4me" : "Back to Home"}
         </Link>
         
         <div className="bg-gray-800/30 border border-gray-700 rounded-xl p-8">
@@ -128,9 +131,20 @@ const CookiePolicy: React.FC = () => {
               <p className="text-gray-300">
                 If you have any questions about our use of cookies, please contact us at:
                 <br />
-                Email: privacy@connect<span className="text-blue-500">x</span>.com
+                Email: <a href="mailto:info@connectx-consulting.com" className="text-blue-500 hover:text-blue-400 underline">info@connectx-consulting.com</a>
                 <br />
-                Address: Connect<span className="text-blue-500">X</span> Privacy Team, [Your Address]
+                <br />
+                Address:
+                <br />
+                ConnectX Consulting DWC-LLC
+                <br />
+                Company reg. 12338
+                <br />
+                Office - DWC Business Centre
+                <br />
+                Level -3, Building A3
+                <br />
+                Dubai South Business Park, P.O Box 390667
               </p>
             </section>
           </div>

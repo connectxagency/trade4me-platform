@@ -143,95 +143,95 @@ const WebinarBookingModal: React.FC<WebinarBookingModalProps> = ({ isOpen, onClo
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-800 rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2 sm:p-4">
+      <div className="mobile-modal bg-gray-800 rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-700">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-700">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
-              <Play className="w-5 h-5 text-green-400" />
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
+              <Play className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-white">FREE Education Webinar</h2>
-              <p className="text-sm text-gray-400">Learn Professional Trading Strategies</p>
+              <h2 className="text-lg sm:text-xl font-bold text-white">FREE Education Webinar</h2>
+              <p className="text-xs sm:text-sm text-gray-400 hidden sm:block">Learn Professional Trading Strategies</p>
             </div>
           </div>
           <button
             onClick={handleClose}
-            className="p-2 text-gray-400 hover:text-white transition-colors"
+            className="p-2 text-gray-400 hover:text-white transition-colors icon-button"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           {step === 'selection' && (
             <div className="space-y-6">
               {/* Webinar Benefits */}
-              <div className="bg-gradient-to-r from-green-500/10 to-blue-500/10 border border-green-500/30 rounded-lg p-6">
-                <h3 className="text-xl font-bold text-white mb-4">🎓 What You'll Learn</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-gradient-to-r from-green-500/10 to-blue-500/10 border border-green-500/30 rounded-lg p-4 sm:p-6">
+                <h3 className="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4">🎓 What You'll Learn</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div className="flex items-start gap-3">
-                    <TrendingUp className="w-5 h-5 text-green-400 mt-1" />
+                    <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-green-400 mt-1" />
                     <div>
-                      <h4 className="text-white font-medium">Professional Trading Strategies</h4>
-                      <p className="text-gray-400 text-sm">Learn the same strategies used by institutional traders</p>
+                      <h4 className="text-white font-medium text-sm sm:text-base">Professional Trading Strategies</h4>
+                      <p className="text-gray-400 text-xs sm:text-sm">Learn the same strategies used by institutional traders</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <Award className="w-5 h-5 text-blue-400 mt-1" />
+                    <Award className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400 mt-1" />
                     <div>
-                      <h4 className="text-white font-medium">Risk Management</h4>
-                      <p className="text-gray-400 text-sm">Protect your capital with proven risk management techniques</p>
+                      <h4 className="text-white font-medium text-sm sm:text-base">Risk Management</h4>
+                      <p className="text-gray-400 text-xs sm:text-sm">Protect your capital with proven risk management techniques</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <Users className="w-5 h-5 text-purple-400 mt-1" />
+                    <Users className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400 mt-1" />
                     <div>
-                      <h4 className="text-white font-medium">Trade4me System</h4>
-                      <p className="text-gray-400 text-sm">How to maximize profits with our automated trading system</p>
+                      <h4 className="text-white font-medium text-sm sm:text-base">Trade4me System</h4>
+                      <p className="text-gray-400 text-xs sm:text-sm">How to maximize profits with our automated trading system</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <CheckCircle className="w-5 h-5 text-orange-400 mt-1" />
+                    <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-orange-400 mt-1" />
                     <div>
-                      <h4 className="text-white font-medium">Live Q&A Session</h4>
-                      <p className="text-gray-400 text-sm">Get your questions answered by trading experts</p>
+                      <h4 className="text-white font-medium text-sm sm:text-base">Live Q&A Session</h4>
+                      <p className="text-gray-400 text-xs sm:text-sm">Get your questions answered by trading experts</p>
                     </div>
                   </div>
                 </div>
               </div>
 
               <div>
-                <h3 className="text-lg font-bold text-white mb-4">Choose Your Webinar Session</h3>
+                <h3 className="text-base sm:text-lg font-bold text-white mb-3 sm:mb-4">Choose Your Webinar Session</h3>
                 
                 {loadingSessions ? (
                   <div className="flex items-center justify-center py-12">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-64 overflow-y-auto">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-40 sm:max-h-48 overflow-y-auto">
                     {availableSessions.map((session) => (
                       <button
-                        key={session.id}
-                        onClick={() => setSelectedSession(session)}
-                        className={`p-4 text-left rounded-lg border transition-all ${
-                          selectedSession?.id === session.id
-                            ? 'border-green-500 bg-green-500/10 text-green-400'
-                            : 'border-gray-600 hover:border-gray-500 text-gray-300'
-                        }`}
-                      >
-                        <div className="flex items-center gap-3 mb-2">
+                         key={session.id}
+                         onClick={() => setSelectedSession(session)}
+                         className={`p-3 sm:p-4 text-left rounded-lg border transition-all text-sm min-h-[44px] ${
+                           selectedSession?.id === session.id
+                             ? 'border-green-500 bg-green-500/10 text-green-400'
+                             : 'border-gray-600 hover:border-gray-500 text-gray-300'
+                         }`}
+                       >
+                        <div className="flex items-center gap-2 sm:gap-3 mb-2">
                           <Calendar className="w-4 h-4" />
-                          <span className="font-medium">{formatDate(session.date)}</span>
+                          <span className="font-medium text-xs sm:text-sm">{formatDate(session.date)}</span>
                         </div>
-                        <div className="flex items-center gap-3 mb-2">
+                        <div className="flex items-center gap-2 sm:gap-3 mb-2">
                           <Clock className="w-4 h-4" />
-                          <span>{formatTime(session.time)} ({session.duration_minutes} min)</span>
+                          <span className="text-xs sm:text-sm">{formatTime(session.time)} ({session.duration_minutes} min)</span>
                         </div>
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2 sm:gap-3">
                           <Users className="w-4 h-4" />
-                          <span className="text-sm">Max {session.max_participants} participants</span>
+                          <span className="text-xs sm:text-sm">Max {session.max_participants} participants</span>
                         </div>
                       </button>
                     ))}
@@ -243,7 +243,7 @@ const WebinarBookingModal: React.FC<WebinarBookingModalProps> = ({ isOpen, onClo
                 <button
                   onClick={() => setStep('details')}
                   disabled={!selectedSession}
-                  className="bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-green-600 text-white px-4 sm:px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base min-h-[44px] w-full sm:w-auto"
                 >
                   Continue to Registration
                 </button>

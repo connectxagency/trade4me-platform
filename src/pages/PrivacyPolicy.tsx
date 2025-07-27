@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
-import Header from '../components/Header';
 
 const PrivacyPolicy: React.FC = () => {
   return (
@@ -93,9 +92,20 @@ const PrivacyPolicy: React.FC = () => {
               <p className="text-gray-300">
                 If you have any questions about this Privacy Policy, please contact us at:
                 <br />
-                Email: privacy@connect<span className="text-blue-500">x</span>.com
+                Email: <a href="mailto:info@connectx-consulting.com" className="text-blue-500 hover:text-blue-400 underline">info@connectx-consulting.com</a>
                 <br />
-                Address: Connect<span className="text-blue-500">X</span> Privacy Team, [Your Address]
+                <br />
+                Address:
+                <br />
+                ConnectX Consulting DWC-LLC
+                <br />
+                Company reg. 12338
+                <br />
+                Office - DWC Business Centre
+                <br />
+                Level -3, Building A3
+                <br />
+                Dubai South Business Park, P.O Box 390667
               </p>
             </section>
           </div>

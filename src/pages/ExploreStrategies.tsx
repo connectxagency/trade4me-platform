@@ -47,7 +47,15 @@ const ExploreStrategies: React.FC = () => {
                   src="/ConnectX-logo-final copy.png" 
                   alt="ConnectX" 
                   className="h-8 w-auto object-contain"
+                  onError={(e) => {
+                    // Fallback if image fails to load
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.nextElementSibling.style.display = 'block';
+                  }}
                 />
+                <div className="hidden text-xl font-bold text-white">
+                  Connect<span className="text-blue-500">X</span>
+                </div>
               </div>
               <span className="text-gray-400">Trading Strategies</span>
             </div>
@@ -99,25 +107,11 @@ const ExploreStrategies: React.FC = () => {
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
               <div>
                 <h2 className="text-3xl font-bold text-white mb-3">{strategyData.name}</h2>
-                <p className="text-gray-300 text-lg leading-relaxed max-w-3xl">
+                <p className="text-gray-300 text-lg leading-relaxed w-full">
                   {strategyData.description}
                 </p>
               </div>
-              <div className="flex flex-col gap-3">
-                <a
-                  href={strategyData.followLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-blue-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 flex items-center gap-3 whitespace-nowrap"
-                >
-                  <TrendingUp className="w-5 h-5" />
-                  Follow Strategy
-                  <ExternalLink className="w-4 h-4" />
-                </a>
-                <div className="text-center">
-                  <div className="text-sm text-gray-400">Strategy ID: 8086397</div>
-                  <div className="text-sm text-blue-400 font-medium">Trade4me Strategy</div>
-                </div>
+              <div className="flex flex-col gap-3 text-center">
               </div>
             </div>
           </div>
@@ -221,19 +215,9 @@ const ExploreStrategies: React.FC = () => {
           <h3 className="text-2xl font-bold text-white mb-4">Ready to Start Following?</h3>
           <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
             Join over 1,200 followers who are already benefiting from this proven trading strategy. 
-            Start copying trades automatically on Phemex Exchange.
+            Learn more about our trading strategies.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <a
-              href={strategyData.followLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-blue-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 flex items-center gap-3"
-            >
-              <TrendingUp className="w-5 h-5" />
-              Follow on Phemex
-              <ExternalLink className="w-4 h-4" />
-            </a>
             <Link
               to="/register"
               className="border border-gray-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-800 transition-all duration-300 flex items-center gap-3"

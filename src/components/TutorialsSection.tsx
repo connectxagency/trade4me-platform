@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { 
   Play, 
   FileText, 
@@ -766,7 +766,7 @@ const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({ tutorial, isOpen, o
         )}
       </div>
 
-      <style jsx>{`
+      <style>{`
         .slider::-webkit-slider-thumb {
           appearance: none;
           width: 16px;
@@ -792,7 +792,11 @@ const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({ tutorial, isOpen, o
   );
 };
 
-const TutorialsSection: React.FC = () => {
+interface TutorialsSectionProps {
+  cachedData?: Tutorial[];
+}
+
+const TutorialsSection: React.FC<TutorialsSectionProps> = ({ cachedData = [] }) => {
   const [tutorials, setTutorials] = useState<Tutorial[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -801,19 +805,49 @@ const TutorialsSection: React.FC = () => {
   const [selectedTutorial, setSelectedTutorial] = useState<Tutorial | null>(null);
   const [isPlayerOpen, setIsPlayerOpen] = useState(false);
   const [isPDFViewerOpen, setIsPDFViewerOpen] = useState(false);
+  const [hasLoaded, setHasLoaded] = useState(false);
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const ITEMS_PER_PAGE = 6; // Load 6 items at a time
 
+  // Initialize with cached data if available
   useEffect(() => {
-    fetchTutorials();
-  }, []);
+    if (cachedData && cachedData.length >= 0) {
+      // Show data immediately (including empty arrays)
+      setTutorials(cachedData);
+      setHasLoaded(true);
+      setLoading(false);
+      setHasMore(cachedData.length > ITEMS_PER_PAGE);
+    } else if (cachedData === undefined) {
+      // Only fetch if no cached data is provided
+      fetchTutorials(1, false);
+    }
+  }, [cachedData]);
 
-  const fetchTutorials = async () => {
+  // Memoize the fetch function to prevent unnecessary re-renders
+  const fetchTutorials = useCallback(async (page = 1, append = false) => {
+    if (hasLoaded && page === 1) return; // Prevent multiple fetches for first page
+    
     try {
+      if (page === 1) {
+        setLoading(true);
+      } else {
+        setLoadingMore(true);
+      }
+
+      // Calculate offset for pagination
+      const offset = (page - 1) * ITEMS_PER_PAGE;
+      
       const { data, error } = await supabase
         .from('tutorials')
         .select('*')
         .eq('is_active', true)
         .order('sort_order')
-        .order('created_at');
+        .order('created_at')
+        .range(offset, offset + ITEMS_PER_PAGE - 1);
 
       if (error) throw error;
       
@@ -827,120 +861,73 @@ const TutorialsSection: React.FC = () => {
         return tutorial;
       });
       
-      setTutorials(processedTutorials);
+      if (append) {
+        setTutorials(prev => [...prev, ...processedTutorials]);
+      } else {
+        setTutorials(processedTutorials);
+      }
+      
+      // Check if there are more items
+      setHasMore(processedTutorials.length === ITEMS_PER_PAGE);
+      
+      if (page === 1) {
+        setHasLoaded(true);
+      }
     } catch (error) {
       console.error('Error fetching tutorials:', error);
-      // Set demo data if database fails
-      setTutorials([
-        {
-          id: '1',
-          title: 'Getting Started with Trade4me',
-          description: 'Learn the basics of our trading platform and how to get started as a partner.',
-          type: 'video',
-          file_url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-          file_name: 'getting-started.mp4',
-          file_size: 45000000,
-          duration: 480,
-          category: 'basics',
-          is_active: true,
-          sort_order: 1,
-          created_at: new Date().toISOString()
-        },
-        {
-          id: '2',
-          title: 'Partner Dashboard Overview',
-          description: 'Complete walkthrough of your partner dashboard and all available features.',
-          type: 'video',
-          file_url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
-          file_name: 'dashboard-overview.mp4',
-          file_size: 62000000,
-          duration: 720,
-          category: 'basics',
-          is_active: true,
-          sort_order: 2,
-          created_at: new Date().toISOString()
-        },
-        {
-          id: '3',
-          title: 'Understanding Commission Structure',
-          description: 'Detailed explanation of how commissions work and how to maximize your earnings.',
-          type: 'pdf',
-          file_url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-          file_name: 'commission-guide.pdf',
-          file_size: 2500000,
-          duration: null,
-          category: 'earnings',
-          is_active: true,
-          sort_order: 3,
-          created_at: new Date().toISOString()
-        },
-        {
-          id: '4',
-          title: 'Referral System Guide',
-          description: 'How to use the referral system to invite new partners and customers.',
-          type: 'video',
-          file_url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-          file_name: 'referral-system.mp4',
-          file_size: 38000000,
-          duration: 360,
-          category: 'referrals',
-          is_active: true,
-          sort_order: 4,
-          created_at: new Date().toISOString()
-        },
-        {
-          id: '5',
-          title: 'Marketing Materials Guide',
-          description: 'Access and use our marketing materials effectively for your campaigns.',
-          type: 'pdf',
-          file_url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-          file_name: 'marketing-materials.pdf',
-          file_size: 5200000,
-          duration: null,
-          category: 'marketing',
-          is_active: true,
-          sort_order: 5,
-          created_at: new Date().toISOString()
-        },
-        {
-          id: '6',
-          title: 'Risk Management Best Practices',
-          description: 'Important guidelines for risk management when promoting trading strategies.',
-          type: 'pdf',
-          file_url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-          file_name: 'risk-management.pdf',
-          file_size: 1800000,
-          duration: null,
-          category: 'compliance',
-          is_active: true,
-          sort_order: 6,
-          created_at: new Date().toISOString()
-        }
-      ]);
+      // No fallback data - just set empty array
+      if (page === 1) {
+        setTutorials([]);
+        setHasMore(false);
+        setHasLoaded(true);
+      }
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
-  };
+  }, [hasLoaded]);
 
-  const formatFileSize = (bytes: number | null) => {
+  // Load more function
+  const loadMore = useCallback(() => {
+    if (!loadingMore && hasMore) {
+      const nextPage = currentPage + 1;
+      setCurrentPage(nextPage);
+      fetchTutorials(nextPage, true);
+    }
+  }, [loadingMore, hasMore, currentPage, fetchTutorials]);
+
+  // Reset pagination when filters change
+  useEffect(() => {
+    // Only reset if we don't have cached data
+    if (!cachedData || cachedData.length === 0) {
+      setCurrentPage(1);
+      setHasMore(true);
+      setTutorials([]);
+      setHasLoaded(false);
+      fetchTutorials(1, false);
+    }
+  }, [selectedCategory, selectedType, searchTerm]);
+
+  // Memoize utility functions
+  const formatFileSize = useCallback((bytes: number | null) => {
     if (!bytes) return 'Unknown size';
     const mb = bytes / (1024 * 1024);
     return `${mb.toFixed(1)} MB`;
-  };
+  }, []);
 
-  const formatDuration = (seconds: number | null) => {
+  const formatDuration = useCallback((seconds: number | null) => {
     if (!seconds) return null;
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-  };
+  }, []);
 
-  const getCategories = () => {
+  const getCategories = useMemo(() => {
     const categories = [...new Set(tutorials.map(t => t.category))];
     return categories.sort();
-  };
+  }, [tutorials]);
 
-  const getCategoryLabel = (category: string) => {
+  const getCategoryLabel = useCallback((category: string) => {
     const labels: Record<string, string> = {
       basics: 'Basics',
       earnings: 'Earnings',
@@ -950,37 +937,40 @@ const TutorialsSection: React.FC = () => {
       general: 'General'
     };
     return labels[category] || category.charAt(0).toUpperCase() + category.slice(1);
-  };
+  }, []);
 
-  const filteredTutorials = tutorials.filter(tutorial => {
-    const matchesCategory = selectedCategory === 'all' || tutorial.category === selectedCategory;
-    const matchesType = selectedType === 'all' || tutorial.type === selectedType;
-    const matchesSearch = tutorial.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         tutorial.description?.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    return matchesCategory && matchesType && matchesSearch;
-  });
+  // Memoize filtered tutorials to prevent unnecessary re-computations
+  const filteredTutorials = useMemo(() => {
+    return tutorials.filter(tutorial => {
+      const matchesCategory = selectedCategory === 'all' || tutorial.category === selectedCategory;
+      const matchesType = selectedType === 'all' || tutorial.type === selectedType;
+      const matchesSearch = tutorial.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           tutorial.description?.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      return matchesCategory && matchesType && matchesSearch;
+    });
+  }, [tutorials, selectedCategory, selectedType, searchTerm]);
 
-  const handleTutorialClick = (tutorial: Tutorial) => {
+  const handleTutorialClick = useCallback((tutorial: Tutorial) => {
     setSelectedTutorial(tutorial);
     if (tutorial.type === 'video') {
       setIsPlayerOpen(true);
     } else if (tutorial.type === 'pdf') {
       setIsPDFViewerOpen(true);
     }
-  };
+  }, []);
 
-  const closePlayer = () => {
+  const closePlayer = useCallback(() => {
     setIsPlayerOpen(false);
     setSelectedTutorial(null);
-  };
+  }, []);
 
-  const closePDFViewer = () => {
+  const closePDFViewer = useCallback(() => {
     setIsPDFViewerOpen(false);
     setSelectedTutorial(null);
-  };
+  }, []);
 
-  if (loading) {
+  if (loading && tutorials.length === 0 && !hasLoaded) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
@@ -1024,7 +1014,7 @@ const TutorialsSection: React.FC = () => {
               className="px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="all">All Categories</option>
-              {getCategories().map(category => (
+              {getCategories.map(category => (
                 <option key={category} value={category}>
                   {getCategoryLabel(category)}
                 </option>
@@ -1119,7 +1109,27 @@ const TutorialsSection: React.FC = () => {
         ))}
       </div>
 
-      {filteredTutorials.length === 0 && (
+      {/* Load More Button */}
+      {hasMore && (
+        <div className="flex justify-center pt-6">
+          <button
+            onClick={loadMore}
+            disabled={loadingMore}
+            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center gap-2"
+          >
+            {loadingMore ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                Loading...
+              </>
+            ) : (
+              'Load More Tutorials'
+            )}
+          </button>
+        </div>
+      )}
+
+      {filteredTutorials.length === 0 && !loading && (
         <div className="text-center py-12">
           <BookOpen className="w-16 h-16 text-gray-600 mx-auto mb-4" />
           <h4 className="text-lg font-semibold text-gray-400 mb-2">No Tutorials Found</h4>

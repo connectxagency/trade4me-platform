@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
-import Header from '../components/Header';
 
 const TermsOfService: React.FC = () => {
   return (
@@ -103,9 +102,20 @@ const TermsOfService: React.FC = () => {
               <p className="text-gray-300">
                 For questions about these Terms of Service, please contact us at:
                 <br />
-                Email: legal@connect<span className="text-blue-500">x</span>.com
+                Email: <a href="mailto:info@connectx-consulting.com" className="text-blue-500 hover:text-blue-400 underline">info@connectx-consulting.com</a>
                 <br />
-                Address: Connect<span className="text-blue-500">X</span> Legal Team, [Your Address]
+                <br />
+                Address:
+                <br />
+                ConnectX Consulting DWC-LLC
+                <br />
+                Company reg. 12338
+                <br />
+                Office - DWC Business Centre
+                <br />
+                Level -3, Building A3
+                <br />
+                Dubai South Business Park, P.O Box 390667
               </p>
             </section>
           </div>

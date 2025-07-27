@@ -51,27 +51,27 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="pt-24 pb-16 px-4 sm:px-6 lg:px-8 bg-gray-900 min-h-screen">
-      <div className="max-w-md mx-auto">
+    <div className="pt-20 sm:pt-24 pb-12 sm:pb-16 px-4 sm:px-6 lg:px-8 bg-gray-900 min-h-screen">
+      <div className="max-w-md mx-auto px-2 sm:px-0">
         <Link 
-          to="/" 
-          className="inline-flex items-center gap-2 text-blue-500 hover:text-blue-400 transition-colors mb-8"
+          to="/trade4me" 
+          className="inline-flex items-center gap-2 text-blue-500 hover:text-blue-400 transition-colors mb-6 sm:mb-8 text-sm sm:text-base"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Home
         </Link>
         
-        <div className="bg-gray-800/30 border border-gray-700 rounded-xl p-8">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-white mb-4">Partner Login</h1>
-            <p className="text-gray-400">
+        <div className="bg-gray-800/30 border border-gray-700 rounded-xl p-5 sm:p-8">
+          <div className="text-center mb-6 sm:mb-8">
+            <h1 className="text-2xl sm:text-3xl font-bold text-white mb-3 sm:mb-4">Partner Login</h1>
+            <p className="text-gray-400 text-sm sm:text-base">
               Sign in to your partner dashboard
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6 mobile-form">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                 Email Address
               </label>
               <input
@@ -79,14 +79,14 @@ const Login: React.FC = () => {
                 name="email"
                 value={formData.email}
                 onChange={handleInputChange}
-                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 sm:px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
                 placeholder="your@email.com"
                 required
               />
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                 Password
               </label>
               <div className="relative">
@@ -95,14 +95,14 @@ const Login: React.FC = () => {
                   name="password"
                   value={formData.password}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12"
+                  className="w-full px-3 sm:px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12 text-base"
                   placeholder="Your password"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white icon-button"
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -110,32 +110,32 @@ const Login: React.FC = () => {
             </div>
 
             {errors.submit && (
-              <div className="bg-red-500/10 border border-red-500 rounded-lg p-4">
-                <p className="text-red-400 text-sm">{errors.submit}</p>
+              <div className="bg-red-500/10 border border-red-500 rounded-lg p-3 sm:p-4">
+                <p className="text-red-400 text-xs sm:text-sm">{errors.submit}</p>
               </div>
             )}
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 text-white px-4 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-blue-600 text-white px-4 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base min-h-[44px]"
             >
               {loading ? 'Signing in...' : 'Sign In'}
             </button>
 
-            <div className="text-center">
+            <div className="text-center pt-2">
               <Link
                 to="/register"
-                className="text-blue-500 hover:text-blue-400 transition-colors"
+                className="text-blue-500 hover:text-blue-400 transition-colors text-sm sm:text-base"
               >
                 Not a partner yet? Register now
               </Link>
             </div>
 
-            <div className="text-center">
+            <div className="text-center pt-1">
               <Link
                 to="/forgot-password"
-                className="text-gray-400 hover:text-white transition-colors text-sm"
+                className="text-gray-400 hover:text-white transition-colors text-xs sm:text-sm"
               >
                 Forgot your password?
               </Link>

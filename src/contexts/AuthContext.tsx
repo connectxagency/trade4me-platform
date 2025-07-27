@@ -32,29 +32,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
         if (error) {
-          console.error('Error getting session:', error);
           // Handle invalid refresh token error
           if (error.message?.includes('Refresh Token Not Found') || error.message?.includes('Invalid Refresh Token')) {
+            console.warn('Invalid refresh token detected, clearing session:', error.message);
             // Clear invalid session data from local storage
             localStorage.removeItem('supabase.auth.token');
             // Sign out to clear any remaining session state
             await supabase.auth.signOut();
             setSession(null);
             setUser(null);
+          } else {
+            console.error('Error getting session:', error);
           }
         } else {
           setSession(session);
           setUser(session?.user ?? null);
         }
       } catch (error) {
-        console.error('Error in getSession:', error);
         // Handle any other authentication errors by clearing session
         if (error instanceof Error && (
           error.message?.includes('Refresh Token Not Found') || 
           error.message?.includes('Invalid Refresh Token')
         )) {
+          console.warn('Invalid refresh token in catch block, clearing session:', error.message);
           localStorage.removeItem('supabase.auth.token');
           await supabase.auth.signOut();
+        } else {
+          console.error('Error in getSession:', error);
         }
         // Don't block the app if auth fails
         setSession(null);

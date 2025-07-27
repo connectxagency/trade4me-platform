@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import TutorialsSection from '../components/TutorialsSection';
-import MarketingMaterialsSection from '../components/MarketingMaterialsSection';
+
+// Lazy load components to improve performance
+const TutorialsSection = lazy(() => import('../components/TutorialsSection'));
+const MarketingMaterialsSection = lazy(() => import('../components/MarketingMaterialsSection'));
 import { 
   DollarSign, 
   Users, 
@@ -57,6 +59,12 @@ const Dashboard: React.FC = () => {
   const [savingUID, setSavingUID] = useState(false);
   const [affiliatePartners, setAffiliatePartners] = useState<AffiliatePartner[]>([]);
   const [loadingAffiliates, setLoadingAffiliates] = useState(false);
+  
+  // Cache state for tutorials and marketing materials
+  const [tutorialsCache, setTutorialsCache] = useState<any[]>([]);
+  const [marketingMaterialsCache, setMarketingMaterialsCache] = useState<any[]>([]);
+  const [cacheLoading, setCacheLoading] = useState(false);
+  const cacheFetchedRef = useRef(false);
 
   useEffect(() => {
     // Check if this is a demo session
@@ -83,10 +91,211 @@ const Dashboard: React.FC = () => {
       });
       setPhemexUID('12345678');
       setLoading(false);
+      
+      // Load demo cache data
+      loadDemoCacheData();
     } else if (user) {
-      fetchPartnerData();
+      // Check for cached partner data first
+      const cachedPartnerData = localStorage.getItem('partner_data_cache');
+      if (cachedPartnerData) {
+        const parsed = JSON.parse(cachedPartnerData);
+        const now = Date.now();
+        const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
+        
+        if (now - parsed.timestamp < CACHE_DURATION) {
+          setPartnerData(parsed.data);
+          setPhemexUID(parsed.data.phemex_uid || '');
+          setLoading(false);
+          
+          // Start fetching cache data in parallel since partner data is cached
+          if (!cacheFetchedRef.current) {
+            cacheFetchedRef.current = true;
+            fetchCacheData();
+          }
+        } else {
+          // Partner data expired, fetch both in parallel
+          if (!cacheFetchedRef.current) {
+            cacheFetchedRef.current = true;
+            Promise.all([fetchPartnerData(), fetchCacheData()]).finally(() => {
+              setLoading(false);
+            });
+          } else {
+            fetchPartnerData();
+          }
+        }
+      } else {
+        // No cached partner data, fetch both in parallel
+        if (!cacheFetchedRef.current) {
+          cacheFetchedRef.current = true;
+          Promise.all([fetchPartnerData(), fetchCacheData()]).finally(() => {
+            setLoading(false);
+          });
+        } else {
+          fetchPartnerData();
+        }
+      }
     }
   }, [user]);
+
+  // Load demo cache data - only for demo mode
+  const loadDemoCacheData = () => {
+    // For demo mode, we'll just set empty arrays since you don't want dummy data
+    setTutorialsCache([]);
+    setMarketingMaterialsCache([]);
+  };
+
+  // Fetch and cache data - PROGRESSIVE loading (show data as it arrives)
+  const fetchCacheData = async () => {
+    // Prevent multiple simultaneous calls
+    if (cacheLoading) {
+      return;
+    }
+    
+    setCacheLoading(true);
+    
+    try {
+      // Check if we have valid cached data (less than 1 hour old)
+      const tutorialsCacheStr = localStorage.getItem('tutorials_cache');
+      const marketingCacheStr = localStorage.getItem('marketing_materials_cache');
+      
+      const now = Date.now();
+      const CACHE_DURATION = 60 * 60 * 1000; // 1 hour
+      
+      // Handle tutorials cache/progressive fetch
+      if (tutorialsCacheStr) {
+        const tutorialsCache = JSON.parse(tutorialsCacheStr);
+        if (now - tutorialsCache.timestamp < CACHE_DURATION) {
+          setTutorialsCache(tutorialsCache.data);
+        } else {
+          // Start fetch immediately and show data when ready
+          fetchTutorialsDataProgressive();
+        }
+      } else {
+        // Start fetch immediately and show data when ready
+        fetchTutorialsDataProgressive();
+      }
+      
+      // Handle marketing materials cache/progressive fetch
+      if (marketingCacheStr) {
+        const marketingCache = JSON.parse(marketingCacheStr);
+        if (now - marketingCache.timestamp < CACHE_DURATION) {
+          setMarketingMaterialsCache(marketingCache.data);
+        } else {
+          // Start fetch immediately and show data when ready
+          fetchMarketingMaterialsDataProgressive();
+        }
+      } else {
+        // Start fetch immediately and show data when ready
+        fetchMarketingMaterialsDataProgressive();
+      }
+      
+    } catch (error) {
+      console.error('Error loading cache data:', error);
+    } finally {
+      setCacheLoading(false);
+    }
+  };
+
+  // Fetch tutorials data - PROGRESSIVE (shows data immediately when available)
+  const fetchTutorialsDataProgressive = async () => {
+    try {
+      // Add timeout to prevent hanging requests
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Tutorials fetch timeout')), 10000); // 10 second timeout
+      });
+      
+      const fetchPromise = supabase
+        .from('tutorials')
+        .select('id, title, description, type, file_url, file_name, file_size, duration, category, sort_order, created_at')
+        .eq('is_active', true)
+        .order('sort_order')
+        .order('created_at')
+        .limit(50); // Limit to prevent huge data loads
+
+      const { data, error } = await Promise.race([fetchPromise, timeoutPromise]) as any;
+
+      if (error) {
+        console.error('Supabase error fetching tutorials:', error);
+        throw error;
+      }
+      
+      // Show data immediately when available (progressive loading)
+      setTutorialsCache(data || []);
+      
+      // Store in localStorage with error handling for quota
+      try {
+        localStorage.setItem('tutorials_cache', JSON.stringify({
+          data: data || [],
+          timestamp: Date.now(),
+          isDemo: false
+        }));
+      } catch (storageError) {
+        console.warn('Could not cache tutorials data (storage quota exceeded):', storageError);
+        // Clear old cache to make space
+        try {
+          localStorage.removeItem('tutorials_cache');
+          localStorage.removeItem('marketing_materials_cache');
+          localStorage.removeItem('partner_data_cache');
+        } catch (clearError) {
+          console.warn('Could not clear old cache:', clearError);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching tutorials:', error);
+      // No fallback data - just set empty array
+      setTutorialsCache([]);
+    }
+  };
+
+  // Fetch marketing materials data - PROGRESSIVE (shows data immediately when available)
+  const fetchMarketingMaterialsDataProgressive = async () => {
+    try {
+      // Add timeout to prevent hanging requests
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Marketing materials fetch timeout')), 10000); // 10 second timeout
+      });
+      
+      const fetchPromise = supabase
+        .from('marketing_materials')
+        .select('id, title, description, type, file_url, file_name, file_size, category, dimensions, format, created_at')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+        .limit(50); // Limit to prevent huge data loads
+
+      const { data, error } = await Promise.race([fetchPromise, timeoutPromise]) as any;
+
+      if (error) {
+        console.error('Supabase error fetching marketing materials:', error);
+        throw error;
+      }
+      
+      // Show data immediately when available (progressive loading)
+      setMarketingMaterialsCache(data || []);
+      
+      // Store in localStorage with error handling for quota
+      try {
+        localStorage.setItem('marketing_materials_cache', JSON.stringify({
+          data: data || [],
+          timestamp: Date.now(),
+          isDemo: false
+        }));
+      } catch (storageError) {
+        console.warn('Could not cache marketing materials data (storage quota exceeded):', storageError);
+        // Clear old cache to make space
+        try {
+          localStorage.removeItem('tutorials_cache');
+          localStorage.removeItem('marketing_materials_cache');
+          localStorage.removeItem('partner_data_cache');
+        } catch (clearError) {
+          console.warn('Could not clear old cache:', clearError);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching marketing materials:', error);
+      // No fallback data - just set empty array
+      setMarketingMaterialsCache([]);
+    }
+  };
 
   const fetchPartnerData = async () => {
     try {
@@ -132,6 +341,12 @@ const Dashboard: React.FC = () => {
         console.log('Fetched partner data:', data); // Debug log
         setPartnerData(data);
         setPhemexUID(data.phemex_uid || '');
+        
+        // Cache the partner data
+        localStorage.setItem('partner_data_cache', JSON.stringify({
+          data: data,
+          timestamp: Date.now()
+        }));
         
         // Additional debug logging
         console.log('Partner referral link:', data.partner_referral_link);
@@ -218,20 +433,20 @@ const Dashboard: React.FC = () => {
       
       for (const referral of referrals || []) {
         const partner = referral.partners;
-        if (partner) {
+        if (partner && typeof partner === 'object' && 'id' in partner) {
           // For demo purposes, we'll use simulated user data
           // In a real implementation, you'd fetch from auth.users or user profiles
-          const userIdShort = partner.user_id.slice(0, 8);
+          const userIdShort = (partner as any).user_id?.slice(0, 8) || 'unknown';
           const names = ['Max Müller', 'Anna Schmidt', 'Tom Weber', 'Lisa Klein', 'Jan Fischer'];
           const randomName = names[Math.floor(Math.random() * names.length)];
           
           affiliates.push({
-            id: partner.id,
+            id: (partner as any).id,
             name: randomName,
             email: `${userIdShort}@example.com`,
-            company_name: partner.company_name,
-            partner_type: partner.partner_type,
-            status: partner.status,
+            company_name: (partner as any).company_name,
+            partner_type: (partner as any).partner_type,
+            status: (partner as any).status,
             created_at: referral.created_at
           });
         }
@@ -384,31 +599,31 @@ const Dashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-900">
       {/* Header */}
-      <header className="bg-gray-800/50 border-b border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+      <header className="bg-gray-800/50 border-b border-gray-700 critical-content">
+        <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
+          <div className="flex items-center justify-between h-14 sm:h-16">
             <div className="flex items-center gap-4">
-              <span className="text-2xl font-bold text-white flex items-center">
+              <span className="text-lg sm:text-xl lg:text-2xl font-bold text-white flex items-center">
                 Trade<span className="text-blue-500 text-2xl font-black">4</span>me
               </span>
-              <span className="text-gray-400">Partner Dashboard</span>
+              <span className="hidden sm:inline text-gray-400 text-sm lg:text-base">Partner Dashboard</span>
               {isDemo && (
-                <span className="bg-blue-500/20 text-blue-400 px-2 py-1 rounded text-xs font-medium">
+                <span className="bg-blue-500/20 text-blue-400 px-2 py-1 rounded text-xs font-medium hidden sm:inline">
                   DEMO MODE
                 </span>
               )}
             </div>
             
-            <div className="flex items-center gap-4">
-              <div className="text-right">
+            <div className="flex items-center gap-2 sm:gap-4">
+              <div className="text-right hidden sm:block">
                 <div className="text-white font-medium">
                   {currentUser?.user_metadata?.first_name} {currentUser?.user_metadata?.last_name}
                 </div>
-                <div className="text-sm text-gray-400">{getPartnerTypeLabel(partnerData.partner_type)}</div>
+                <div className="text-xs lg:text-sm text-gray-400">{getPartnerTypeLabel(partnerData.partner_type)}</div>
               </div>
               <button
                 onClick={handleSignOut}
-                className="p-2 text-gray-400 hover:text-white transition-colors"
+                className="p-2 text-gray-400 hover:text-white transition-colors icon-button rounded-md hover:bg-gray-800/50"
                 title="Sign Out"
               >
                 <LogOut className="w-5 h-5" />
@@ -418,16 +633,16 @@ const Dashboard: React.FC = () => {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-8">
         {/* Demo Notice */}
         {/* Status Alert */}
         {partnerData.status === 'pending' && !isDemo && (
-          <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4 mb-8">
+          <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-3 sm:p-4 mb-4 sm:mb-8">
             <div className="flex items-center gap-3">
               <Clock className="w-5 h-5 text-yellow-400" />
               <div>
-                <h3 className="text-yellow-400 font-semibold">Application Under Review</h3>
-                <p className="text-yellow-300/80 text-sm">
+                <h3 className="text-yellow-400 font-semibold text-sm sm:text-base">Application Under Review</h3>
+                <p className="text-yellow-300/80 text-xs sm:text-sm">
                   Your partner application is currently being reviewed. You will receive an email once your account is approved.
                 </p>
               </div>
@@ -436,19 +651,19 @@ const Dashboard: React.FC = () => {
         )}
 
         {/* Stats Overview */}
-        <div className="mb-4">
-          <h2 className="text-2xl font-bold text-white">Direct Commission</h2>
+        <div className="mb-3 sm:mb-4">
+          <h2 className="text-xl sm:text-2xl font-bold text-white">Direct Commission</h2>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
           {/* Phemex Account UID Box */}
-          <div className="bg-gray-800/30 border border-gray-700 rounded-xl p-6">
+          <div className="mobile-card bg-gray-800/30 border border-gray-700 rounded-xl p-4 sm:p-6">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-500/20 rounded-lg flex items-center justify-center">
                 <Users className="w-6 h-6 text-purple-400" />
               </div>
               <div className="flex-1">
-                <div className="text-sm text-gray-400 mb-2">Phemex Account UID</div>
+                <div className="text-xs sm:text-sm text-gray-400 mb-2">Phemex Account UID</div>
                 {editingPhemexUID ? (
                   <div className="flex items-center gap-2">
                     <input
@@ -456,13 +671,13 @@ const Dashboard: React.FC = () => {
                       value={phemexUID}
                       onChange={(e) => setPhemexUID(e.target.value)}
                       placeholder="Enter your Phemex UID"
-                      className="flex-1 px-3 py-1 bg-gray-700 border border-gray-600 rounded text-white text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      className="flex-1 px-2 sm:px-3 py-1 bg-gray-700 border border-gray-600 rounded text-white text-xs sm:text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                       autoFocus
                     />
                     <button
                       onClick={savePhemexUID}
                       disabled={savingUID}
-                      className="px-3 py-1 bg-purple-600 text-white rounded text-xs font-medium hover:bg-purple-700 transition-colors disabled:opacity-50"
+                      className="px-2 sm:px-3 py-1 bg-purple-600 text-white rounded text-xs font-medium hover:bg-purple-700 transition-colors disabled:opacity-50 min-h-[32px]"
                     >
                       {savingUID ? 'Saving...' : 'Save'}
                     </button>
@@ -471,19 +686,19 @@ const Dashboard: React.FC = () => {
                         setEditingPhemexUID(false);
                         setPhemexUID(partnerData?.phemex_uid || '');
                       }}
-                      className="px-3 py-1 bg-gray-600 text-white rounded text-xs font-medium hover:bg-gray-700 transition-colors"
+                      className="px-2 sm:px-3 py-1 bg-gray-600 text-white rounded text-xs font-medium hover:bg-gray-700 transition-colors min-h-[32px]"
                     >
                       Cancel
                     </button>
                   </div>
                 ) : (
                   <div className="flex items-center gap-2">
-                    <div className="text-lg font-bold text-white">
+                    <div className="text-base sm:text-lg font-bold text-white">
                       {partnerData?.phemex_uid || 'Not set'}
                     </div>
                     <button
                       onClick={() => setEditingPhemexUID(true)}
-                      className="px-2 py-1 bg-purple-600 text-white rounded text-xs font-medium hover:bg-purple-700 transition-colors"
+                      className="px-2 py-1 bg-purple-600 text-white rounded text-xs font-medium hover:bg-purple-700 transition-colors min-h-[32px]"
                     >
                       Edit
                     </button>
@@ -494,46 +709,46 @@ const Dashboard: React.FC = () => {
           </div>
 
           {/* Customer Onboarding Bonus Box */}
-          <div className="bg-gray-800/30 border border-gray-700 rounded-xl p-6">
+          <div className="mobile-card bg-gray-800/30 border border-gray-700 rounded-xl p-4 sm:p-6">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-500/20 rounded-lg flex items-center justify-center">
                 <CheckCircle className="w-6 h-6 text-green-400" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-white">
+                <div className="text-lg sm:text-xl lg:text-2xl font-bold text-white">
                   {partnerData?.customer_onboarding_bonus || 100} USDT
                 </div>
-                <div className="text-sm text-gray-400">Customer Onboarding Bonus</div>
+                <div className="text-xs sm:text-sm text-gray-400">Customer Onboarding Bonus</div>
               </div>
             </div>
           </div>
 
           {/* Profit Share Box */}
-          <div className="bg-gray-800/30 border border-gray-700 rounded-xl p-6">
+          <div className="mobile-card bg-gray-800/30 border border-gray-700 rounded-xl p-4 sm:p-6">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
                 <TrendingUp className="w-6 h-6 text-blue-400" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-white">
+                <div className="text-lg sm:text-xl lg:text-2xl font-bold text-white">
                   {partnerData?.profit_share_rate || 2}%
                 </div>
-                <div className="text-sm text-gray-400">Profit Share</div>
+                <div className="text-xs sm:text-sm text-gray-400">Profit Share</div>
               </div>
             </div>
           </div>
 
           {/* Rebates Box */}
-          <div className="bg-gray-800/30 border border-gray-700 rounded-xl p-6">
+          <div className="mobile-card bg-gray-800/30 border border-gray-700 rounded-xl p-4 sm:p-6">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-500/20 rounded-lg flex items-center justify-center">
                 <Award className="w-6 h-6 text-purple-400" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-white">
+                <div className="text-lg sm:text-xl lg:text-2xl font-bold text-white">
                   {partnerData?.rebate_rate || partnerData.commission_rate || 15}%
                 </div>
-                <div className="text-sm text-gray-400">Rebates</div>
+                <div className="text-xs sm:text-sm text-gray-400">Rebates</div>
               </div>
             </div>
           </div>
@@ -541,8 +756,8 @@ const Dashboard: React.FC = () => {
         </div>
 
         {/* Navigation Tabs */}
-        <div className="border-b border-gray-700 mb-8">
-          <nav className="flex space-x-8">
+        <div className="border-b border-gray-700 mb-4 sm:mb-8 overflow-x-auto">
+          <nav className="flex space-x-4 sm:space-x-8 min-w-max">
             {[
               { id: 'overview', label: 'Overview', icon: BarChart3 },
               { id: 'tutorials', label: 'Tutorials & Guides', icon: BookOpen },
@@ -552,14 +767,15 @@ const Dashboard: React.FC = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                className={`flex items-center gap-2 py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm transition-colors whitespace-nowrap min-h-[44px] ${
                   activeTab === tab.id
                     ? 'border-blue-500 text-blue-400'
                     : 'border-transparent text-gray-400 hover:text-gray-300'
                 }`}
               >
                 <tab.icon className="w-4 h-4" />
-                {tab.label}
+                <span className="hidden sm:inline">{tab.label}</span>
+                <span className="sm:hidden">{tab.label.split(' ')[0]}</span>
               </button>
             ))}
           </nav>
@@ -745,13 +961,25 @@ const Dashboard: React.FC = () => {
 
         {activeTab === 'tutorials' && (
           <div className="bg-gray-800/30 border border-gray-700 rounded-xl p-6">
-            <TutorialsSection />
+            <Suspense fallback={
+              <div className="flex items-center justify-center py-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+              </div>
+            }>
+              <TutorialsSection cachedData={tutorialsCache} />
+            </Suspense>
           </div>
         )}
 
         {activeTab === 'marketing' && (
           <div className="bg-gray-800/30 border border-gray-700 rounded-xl p-6">
-            <MarketingMaterialsSection />
+            <Suspense fallback={
+              <div className="flex items-center justify-center py-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+              </div>
+            }>
+              <MarketingMaterialsSection cachedData={marketingMaterialsCache} />
+            </Suspense>
           </div>
         )}
 
@@ -790,6 +1018,9 @@ const Dashboard: React.FC = () => {
                   {new Date(partnerData.created_at).toLocaleDateString()}
                 </div>
               </div>
+
+              {/* Debug Section */}
+
             </div>
           </div>
         )}

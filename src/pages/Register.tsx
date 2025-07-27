@@ -22,7 +22,6 @@ const Register: React.FC = () => {
     socialMediaLinks: '',
     audienceSize: '',
     experienceLevel: 'beginner' as 'beginner' | 'intermediate' | 'advanced',
-    preferredStrategies: [] as string[],
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -53,14 +52,6 @@ const Register: React.FC = () => {
     }
   ];
 
-  const strategies = [
-    'Compound BTC 500',
-    'DeFi Yield Farming',
-    'Arbitrage Trading',
-    'Grid Trading',
-    'Swing Trading',
-    'Scalping Strategies'
-  ];
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -103,7 +94,6 @@ const Register: React.FC = () => {
           social_media_links: formData.socialMediaLinks || null,
           audience_size: formData.audienceSize ? parseInt(formData.audienceSize) : null,
           experience_level: formData.experienceLevel,
-          preferred_strategies: formData.preferredStrategies.join(','),
           status: 'pending',
           total_earnings: 0,
           total_referrals: 0,
@@ -173,66 +163,58 @@ const Register: React.FC = () => {
     }
   };
 
-  const handleStrategyToggle = (strategy: string) => {
-    setFormData(prev => ({
-      ...prev,
-      preferredStrategies: prev.preferredStrategies.includes(strategy)
-        ? prev.preferredStrategies.filter(s => s !== strategy)
-        : [...prev.preferredStrategies, strategy]
-    }));
-  };
 
   return (
-    <div className="pt-24 pb-16 px-4 sm:px-6 lg:px-8 bg-gray-900 min-h-screen">
-      <div className="max-w-4xl mx-auto">
+    <div className="pt-20 sm:pt-24 pb-12 sm:pb-16 px-4 sm:px-6 lg:px-8 bg-gray-900 min-h-screen">
+      <div className="max-w-4xl mx-auto px-2 sm:px-0">
         <Link 
           to="/" 
-          className="inline-flex items-center gap-2 text-blue-500 hover:text-blue-400 transition-colors mb-8"
+          className="inline-flex items-center gap-2 text-blue-500 hover:text-blue-400 transition-colors mb-6 sm:mb-8 text-sm sm:text-base"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Home
         </Link>
         
-        <div className="bg-gray-800/30 border border-gray-700 rounded-xl p-8">
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-white mb-4">Become a Partner</h1>
+        <div className="bg-gray-800/30 border border-gray-700 rounded-xl p-5 sm:p-8">
+          <div className="text-center mb-6 sm:mb-8">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 sm:mb-4">Become a Partner</h1>
             {affiliateCode && (
-              <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-4 mb-4">
-                <p className="text-orange-300">
+              <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-3 sm:p-4 mb-3 sm:mb-4">
+                <p className="text-orange-300 text-sm">
                   <strong>Affiliate Invitation:</strong> You're joining through a partner referral (Code: {affiliateCode})
                 </p>
               </div>
             )}
-            <p className="text-xl text-gray-400">
+            <p className="text-base sm:text-lg md:text-xl text-gray-400">
               Join our network of successful partners and start earning today
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-8">
+          <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8 mobile-form form-container">
             {/* Partner Type Selection */}
             <div>
-              <label className="block text-lg font-semibold text-white mb-4">
+              <label className="block text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4">
                 Choose Your Partner Type
               </label>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
                 {partnerTypes.map((type) => (
                   <div
                     key={type.id}
-                    className={`border-2 rounded-xl p-6 cursor-pointer transition-all duration-300 ${
+                    className={`border-2 rounded-xl p-4 sm:p-6 cursor-pointer transition-all duration-300 ${
                       formData.partnerType === type.id
                         ? 'border-blue-500 bg-blue-500/10'
                         : 'border-gray-600 hover:border-gray-500'
                     }`}
                     onClick={() => setFormData(prev => ({ ...prev, partnerType: type.id as any }))}
                   >
-                    <div className="flex items-center gap-3 mb-4">
+                    <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
                       <type.icon className="w-8 h-8 text-blue-500" />
-                      <h3 className="text-lg font-bold text-white">{type.title}</h3>
+                      <h3 className="text-base sm:text-lg font-bold text-white">{type.title}</h3>
                     </div>
-                    <p className="text-gray-400 mb-4">{type.description}</p>
+                    <p className="text-gray-400 mb-3 sm:mb-4 text-sm sm:text-base">{type.description}</p>
                     <ul className="space-y-1">
                       {type.features.map((feature, index) => (
-                        <li key={index} className="text-sm text-gray-300 flex items-center gap-2">
+                        <li key={index} className="text-xs sm:text-sm text-gray-300 flex items-center gap-2">
                           <div className="w-1 h-1 bg-blue-500 rounded-full"></div>
                           {feature}
                         </li>
@@ -244,9 +226,9 @@ const Register: React.FC = () => {
             </div>
 
             {/* Personal Information */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="form-grid grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                   First Name *
                 </label>
                 <input
@@ -254,14 +236,14 @@ const Register: React.FC = () => {
                   name="firstName"
                   value={formData.firstName}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 sm:px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
                   placeholder="Your first name"
                 />
-                {errors.firstName && <p className="text-red-400 text-sm mt-1">{errors.firstName}</p>}
+                {errors.firstName && <p className="text-red-400 text-xs sm:text-sm mt-1">{errors.firstName}</p>}
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                   Last Name *
                 </label>
                 <input
@@ -269,17 +251,17 @@ const Register: React.FC = () => {
                   name="lastName"
                   value={formData.lastName}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 sm:px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
                   placeholder="Your last name"
                 />
-                {errors.lastName && <p className="text-red-400 text-sm mt-1">{errors.lastName}</p>}
+                {errors.lastName && <p className="text-red-400 text-xs sm:text-sm mt-1">{errors.lastName}</p>}
               </div>
             </div>
 
             {/* Account Information */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="form-grid grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                   Email Address *
                 </label>
                 <input
@@ -287,16 +269,16 @@ const Register: React.FC = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className={`w-full px-4 py-3 bg-gray-700 border rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                  className={`w-full px-3 sm:px-4 py-3 bg-gray-700 border rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base ${
                     errors.email ? 'border-red-500' : 'border-gray-600'
                   }`}
                   placeholder="your@email.com"
                 />
-                {errors.email && <p className="text-red-400 text-sm mt-1">{errors.email}</p>}
+                {errors.email && <p className="text-red-400 text-xs sm:text-sm mt-1">{errors.email}</p>}
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
                   Company/Organization
                 </label>
                 <input
@@ -304,7 +286,7 @@ const Register: React.FC = () => {
                   name="companyName"
                   value={formData.companyName}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 sm:px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
                   placeholder="Your company name"
                 />
               </div>
@@ -411,29 +393,6 @@ const Register: React.FC = () => {
                 <option value="intermediate">Intermediate</option>
                 <option value="advanced">Advanced</option>
               </select>
-            </div>
-
-            {/* Preferred Strategies */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-4">
-                Preferred Trading Strategies
-              </label>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {strategies.map((strategy) => (
-                  <label
-                    key={strategy}
-                    className="flex items-center gap-3 p-3 bg-gray-700/50 rounded-lg cursor-pointer hover:bg-gray-700 transition-colors"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={formData.preferredStrategies.includes(strategy)}
-                      onChange={() => handleStrategyToggle(strategy)}
-                      className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
-                    />
-                    <span className="text-sm text-gray-300">{strategy}</span>
-                  </label>
-                ))}
-              </div>
             </div>
 
             {errors.submit && (
